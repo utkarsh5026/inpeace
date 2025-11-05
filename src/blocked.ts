@@ -254,11 +254,40 @@ function handleFinalCheckbox(): void {
 }
 
 function allowAccess(): void {
-  // Here you would implement the logic to allow access to the site
-  // For now, we'll redirect to the original site
-  if (site) {
-    window.location.href = 'https://' + site;
+  // Show dramatic countdown before allowing access
+  const countdownOverlay = document.getElementById('countdownOverlay');
+  const countdownNumber = document.getElementById('countdownNumber');
+  const proceedFinalBtn = document.getElementById('proceedFinalBtn') as HTMLButtonElement;
+
+  if (!countdownOverlay || !countdownNumber) return;
+
+  // Disable button
+  if (proceedFinalBtn) {
+    proceedFinalBtn.disabled = true;
   }
+
+  // Show overlay
+  countdownOverlay.classList.remove('hidden');
+
+  let count = 3;
+  const showCount = () => {
+    if (count > 0) {
+      countdownNumber.textContent = count.toString();
+      countdownNumber.classList.remove('countdown-number');
+      // Force reflow to restart animation
+      void countdownNumber.offsetWidth;
+      countdownNumber.classList.add('countdown-number');
+      count--;
+      setTimeout(showCount, 1000);
+    } else {
+      // Redirect to the site
+      if (site) {
+        window.location.href = 'https://' + site;
+      }
+    }
+  };
+
+  showCount();
 }
 
 // Set up event listeners when DOM is loaded

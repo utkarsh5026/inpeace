@@ -107,6 +107,52 @@
         animation: buttonTextFlash 0.6s ease-out;
       }
 
+      @keyframes intensePulse {
+        0%, 100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 0.8;
+        }
+      }
+
+      @keyframes glowPulse {
+        0%, 100% {
+          box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+        50% {
+          box-shadow: 0 0 40px rgba(239, 68, 68, 0.9), 0 0 60px rgba(239, 68, 68, 0.6);
+        }
+      }
+
+      .stage3-intense {
+        animation: intensePulse 2s ease-in-out infinite;
+      }
+
+      .final-checkbox-container {
+        animation: glowPulse 3s ease-in-out infinite;
+      }
+
+      @keyframes countdown {
+        0% {
+          opacity: 0;
+          transform: scale(3);
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+      }
+
+      .countdown-number {
+        animation: countdown 1s ease-out;
+      }
+
       @keyframes fadeInScale {
         0% {
           opacity: 0;
@@ -269,41 +315,69 @@
 
         <!-- Stage 3: Shameless Message -->
         <div id="stage3" class="hidden">
-          <div class="text-8xl mb-8 fade-in-scale">🤦</div>
+          <div class="text-9xl mb-8 fade-in-scale stage3-intense">🤦</div>
           <h2
-            class="text-5xl font-bold mb-6 fade-in-scale text-red-400"
+            class="text-6xl font-bold mb-8 fade-in-scale text-red-400"
             style="animation-delay: 0.3s"
           >
             You are shameless
           </h2>
           <p
-            class="text-2xl opacity-90 fade-in-scale mb-8"
+            class="text-3xl opacity-90 fade-in-scale mb-6 font-semibold"
             style="animation-delay: 0.6s"
           >
             You actually clicked it 10 times...
+          </p>
+          <p
+            class="text-xl opacity-70 fade-in-scale italic"
+            style="animation-delay: 0.9s"
+          >
+            What would your family think?
           </p>
         </div>
 
         <!-- Stage 4: Final Checkbox -->
         <div id="stage4" class="hidden">
-          <div class="text-7xl mb-8">😤</div>
-          <h2 class="text-4xl font-bold mb-8">One Last Thing...</h2>
+          <div class="text-8xl mb-6">⏰</div>
+          <h2 class="text-5xl font-bold mb-4 text-red-400">Wait.</h2>
+          <p class="text-2xl mb-8 opacity-80">Are you absolutely certain?</p>
 
-          <div class="bg-black/50 p-8 rounded-xl border-2 border-red-500 mb-8">
+          <!-- Stats Display -->
+          <div class="bg-black/70 p-6 rounded-xl border-2 border-yellow-500 mb-8">
+            <h3 class="text-xl font-bold mb-4 text-yellow-400">Your Shame Statistics:</h3>
+            <div class="flex justify-around text-center">
+              <div>
+                <div class="text-4xl font-bold text-red-400" id="totalBlocks">0</div>
+                <div class="text-sm opacity-70">Total Blocks</div>
+              </div>
+              <div>
+                <div class="text-4xl font-bold text-orange-400" id="blocksToday">0</div>
+                <div class="text-sm opacity-70">Today</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Countdown overlay -->
+          <div id="countdownOverlay" class="fixed inset-0 flex items-center justify-center bg-black/80 z-50 hidden">
+            <div id="countdownNumber" class="text-9xl font-bold text-red-500 countdown-number"></div>
+          </div>
+
+          <div class="bg-black/50 p-8 rounded-xl border-2 border-red-500 mb-8 final-checkbox-container">
             <label
               class="flex items-start gap-4 cursor-pointer text-left group"
             >
               <input
                 type="checkbox"
                 id="finalCheckbox"
-                class="mt-1 w-6 h-6 cursor-pointer"
+                class="mt-1 w-6 h-6 cursor-pointer accent-red-600"
               />
               <span
                 class="text-xl leading-relaxed group-hover:text-red-300 transition-colors"
               >
                 I acknowledge that what I'm about to do is a complete waste of
                 my precious time, and I am willingly choosing to throw away
-                these moments of my life that I will never get back.
+                these moments of my life that I will never get back. I understand
+                that <span class="font-bold text-red-400">time, once lost, cannot be recovered</span>.
               </span>
             </label>
           </div>
@@ -311,10 +385,12 @@
           <button
             id="proceedFinalBtn"
             disabled
-            class="px-12 py-6 bg-gray-600 text-white text-xl font-bold rounded-lg shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-12 py-6 bg-gray-600 text-white text-xl font-bold rounded-lg shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700"
           >
             Proceed to Waste Time
           </button>
+
+          <p class="text-sm mt-6 opacity-50 italic">You'll regret this.</p>
         </div>
       </div>
     </div>
