@@ -41,7 +41,7 @@ module.exports = {
         { from: 'public/manifest.json', to: 'manifest.json' },
         { from: 'public/popup.html', to: 'popup.html' },
         { from: 'public/blocked.html', to: 'blocked.html' },
-        { from: 'icons', to: 'icons', noErrorOnMissing: true }
+        { from: 'public/icons', to: 'icons', noErrorOnMissing: true }
       ],
     }),
   ],
