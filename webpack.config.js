@@ -5,7 +5,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 module.exports = {
   entry: {
     background: './src/background.ts',
-    popup: './src/popup.ts'
+    popup: './src/popup.ts',
+    blocked: './src/blocked.ts'
   },
   module: {
     rules: [
@@ -41,7 +42,9 @@ module.exports = {
         { from: 'public/manifest.json', to: 'manifest.json' },
         { from: 'public/popup.html', to: 'popup.html' },
         { from: 'public/blocked.html', to: 'blocked.html' },
-        { from: 'public/icons', to: 'icons', noErrorOnMissing: true }
+        { from: 'public/icons/icon16.png', to: 'icons/icon16.png' },
+        { from: 'public/icons/icon48.png', to: 'icons/icon48.png' },
+        { from: 'public/icons/icon128.png', to: 'icons/icon128.png' }
       ],
     }),
   ],
