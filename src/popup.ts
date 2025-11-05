@@ -1,5 +1,6 @@
-import { DEFAULT_BLOCKED_SITES, StorageData } from './types';
-import './styles/main.css';
+/// <reference types="chrome" />
+import { DEFAULT_BLOCKED_SITES, StorageData } from "./types";
+import "./styles/main.css";
 
 // DOM elements
 const websiteInput = document.getElementById(
@@ -34,7 +35,8 @@ async function loadWebsites(): Promise<void> {
 
   blockedSites.forEach((site) => {
     const li = document.createElement("li");
-    li.className = "flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors";
+    li.className =
+      "flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors";
     li.innerHTML = `
       <span class="text-sm text-gray-800">${site}</span>
       <button class="px-3 py-1 bg-red-500 text-white rounded text-xs font-medium hover:bg-red-600 transition-colors remove-btn" data-site="${site}">Remove</button>
@@ -121,7 +123,6 @@ async function toggleExtension(): Promise<void> {
     ? "Extension Enabled"
     : "Extension Disabled";
 
-  // Notify background script
   chrome.runtime.sendMessage({ action: "updateRules" });
 }
 
