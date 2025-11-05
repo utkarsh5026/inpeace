@@ -121,7 +121,6 @@ function handleShameClick(): void {
   const shameTitle = document.getElementById('shameTitle');
   const shameSubtext = document.getElementById('shameSubtext');
   const cooldownBar = document.getElementById('cooldownBar');
-  const buttonChangeNotice = document.getElementById('buttonChangeNotice');
   const body = document.body;
 
   // Update click count
@@ -144,15 +143,6 @@ function handleShameClick(): void {
     setTimeout(() => {
       shameButton.classList.remove('button-text-change');
     }, 600);
-  }
-
-  // Show notification about button text change
-  if (buttonChangeNotice && clickCount > 1) {
-    buttonChangeNotice.textContent = '⚠️ The button text changed! Read it!';
-    buttonChangeNotice.style.opacity = '1';
-    setTimeout(() => {
-      buttonChangeNotice.style.opacity = '0';
-    }, 2000);
   }
 
   if (shameEmoji && currentMessage) {
