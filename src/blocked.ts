@@ -54,6 +54,22 @@ updateStats();
 // Shame Ritual Logic
 let clickCount = 0;
 let currentStage = 0;
+let canClick = true;
+let clickCooldown = 800; // Start with 800ms cooldown
+
+// Progressive messages for each click
+const shameMessages = [
+  { text: 'I Have No Self-Control', emoji: '😞', scale: 1.0 },
+  { text: 'Really? You\'re Going Through With This?', emoji: '😟', scale: 1.1 },
+  { text: 'Think About What You\'re Doing...', emoji: '😥', scale: 1.2 },
+  { text: 'This Is Embarrassing', emoji: '😓', scale: 1.3 },
+  { text: 'You Could Be Doing Literally Anything Else', emoji: '😢', scale: 1.4 },
+  { text: 'Your Future Self Is Disappointed', emoji: '😭', scale: 1.5 },
+  { text: 'Is This Really Worth It?', emoji: '🤦', scale: 1.6 },
+  { text: 'You Have No Willpower', emoji: '😤', scale: 1.7 },
+  { text: 'This Is Who You Are', emoji: '💔', scale: 1.8 },
+  { text: 'One More Click... That\'s All It Takes', emoji: '😔', scale: 2.0 }
+];
 
 // Start at stage 1 immediately when page loads
 function initShameRitual(): void {
@@ -63,6 +79,9 @@ function initShameRitual(): void {
 function startShameRitual(): void {
   // Move to stage 2 (click challenge)
   showStage(2);
+  clickCount = 0;
+  canClick = true;
+  clickCooldown = 800;
 }
 
 function showStage(stageNumber: number): void {
@@ -89,10 +108,21 @@ function showStage(stageNumber: number): void {
 }
 
 function handleShameClick(): void {
+  if (!canClick || clickCount >= 10) return;
+
+  canClick = false;
   clickCount++;
+
   const shameMeterFill = document.getElementById('shameMeterFill');
   const clickCountDisplay = document.getElementById('clickCount');
-  const shameButton = document.getElementById('shameButton');
+  const shameButton = document.getElementById('shameButton') as HTMLButtonElement;
+  const stage2Container = document.getElementById('stage2');
+  const shameEmoji = document.getElementById('shameEmoji');
+  const shameTitle = document.getElementById('shameTitle');
+  const shameSubtext = document.getElementById('shameSubtext');
+  const cooldownBar = document.getElementById('cooldownBar');
+  const buttonChangeNotice = document.getElementById('buttonChangeNotice');
+  const body = document.body;
 
   // Update click count
   if (clickCountDisplay) {
@@ -105,9 +135,71 @@ function handleShameClick(): void {
     shameMeterFill.style.width = percentage + '%';
   }
 
+  // Update messages, emoji, and styling
+  const currentMessage = shameMessages[clickCount - 1];
+  if (shameButton && currentMessage) {
+    shameButton.textContent = currentMessage.text;
+    // Flash animation to draw attention to text change
+    shameButton.classList.add('button-text-change');
+    setTimeout(() => {
+      shameButton.classList.remove('button-text-change');
+    }, 600);
+  }
+
+  // Show notification about button text change
+  if (buttonChangeNotice && clickCount > 1) {
+    buttonChangeNotice.textContent = '⚠️ The button text changed! Read it!';
+    buttonChangeNotice.style.opacity = '1';
+    setTimeout(() => {
+      buttonChangeNotice.style.opacity = '0';
+    }, 2000);
+  }
+
+  if (shameEmoji && currentMessage) {
+    shameEmoji.textContent = currentMessage.emoji;
+    shameEmoji.style.transform = `scale(${currentMessage.scale})`;
+  }
+
+  // Update title and subtext with increasing urgency
+  if (shameTitle && clickCount > 3) {
+    const intensity = Math.floor(clickCount / 3);
+    if (intensity === 2) {
+      shameTitle.textContent = 'Stop. Just Stop.';
+    } else if (intensity >= 3) {
+      shameTitle.textContent = 'You\'re Really Doing This?';
+    }
+  }
+
+  if (shameSubtext) {
+    if (clickCount === 5) {
+      shameSubtext.textContent = 'Halfway there... halfway to regret.';
+    } else if (clickCount === 8) {
+      shameSubtext.textContent = 'Almost done throwing away your dignity.';
+    } else if (clickCount === 9) {
+      shameSubtext.textContent = 'One. More. Click.';
+      shameSubtext.classList.add('text-red-400', 'font-bold');
+    }
+  }
+
+  // Escalating screen shake
+  if (stage2Container) {
+    const shakeIntensity = Math.min(clickCount, 5);
+    stage2Container.classList.add(`screen-shake-${shakeIntensity}`);
+    setTimeout(() => {
+      stage2Container.classList.remove(`screen-shake-${shakeIntensity}`);
+    }, 500);
+  }
+
+  // Progressive background color change
+  if (body) {
+    const redIntensity = Math.floor((clickCount / 10) * 30);
+    body.style.backgroundColor = `rgb(${17 + redIntensity}, ${24 - redIntensity}, ${39 - redIntensity})`;
+  }
+
   // Add shake animation to button
   if (shameButton) {
     shameButton.classList.add('shake-animation');
+    shameButton.disabled = true;
     setTimeout(() => {
       shameButton.classList.remove('shake-animation');
     }, 500);
@@ -121,11 +213,36 @@ function handleShameClick(): void {
     }, 600);
   }
 
+  // Show and animate cooldown bar
+  if (cooldownBar) {
+    cooldownBar.style.width = '100%';
+    cooldownBar.style.transition = 'none';
+    setTimeout(() => {
+      cooldownBar.style.transition = `width ${clickCooldown}ms linear`;
+      cooldownBar.style.width = '0%';
+    }, 50);
+  }
+
+  // Increasing cooldown with each click (makes it more painful)
+  setTimeout(() => {
+    canClick = true;
+    if (shameButton) {
+      shameButton.disabled = false;
+    }
+  }, clickCooldown);
+
+  // Increase cooldown for next click
+  clickCooldown = Math.min(clickCooldown + 200, 2000);
+
   // Progress to stage 3 after 10 clicks
   if (clickCount >= 10) {
     setTimeout(() => {
       showStage(3);
-    }, 400);
+      // Reset background
+      if (body) {
+        body.style.backgroundColor = '';
+      }
+    }, clickCooldown + 400);
   }
 }
 
