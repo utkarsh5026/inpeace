@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Block distracting websites to stay focused and at peace",
   "scripts": {
-    "build": "webpack --mode production",
+    "build": "webpack --mode production && node postbuild.js",
     "dev": "webpack --mode development --watch",
     "clean": "rimraf dist",
     "format": "prettier --write .",
