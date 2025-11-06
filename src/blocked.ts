@@ -217,13 +217,11 @@ function handleShameClick(): void {
     }, 500);
   }
 
-  // Progressive background color change
   if (body) {
-    const redIntensity = Math.floor((clickCount / 10) * 30);
-    body.style.backgroundColor = `rgb(${17 + redIntensity}, ${24 - redIntensity}, ${39 - redIntensity})`;
+    const redIntensity = Math.floor((clickCount / 10) * 20); // Max 20% red tint
+    body.style.backgroundColor = `rgb(${255}, ${255 - redIntensity}, ${255 - redIntensity})`;
   }
 
-  // Add shake animation to button
   if (shameButton) {
     shameButton.classList.add('shake-animation');
     shameButton.disabled = true;
