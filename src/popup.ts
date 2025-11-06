@@ -4,7 +4,9 @@ import './styles/main.css';
 
 // DOM elements
 const currentSiteDiv = document.getElementById('currentSite') as HTMLDivElement;
-const addCurrentBtn = document.getElementById('addCurrentBtn') as HTMLButtonElement;
+const addCurrentBtn = document.getElementById(
+  'addCurrentBtn'
+) as HTMLButtonElement;
 const websiteList = document.getElementById('websiteList') as HTMLUListElement;
 const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
 const enableToggle = document.getElementById(
@@ -16,7 +18,6 @@ const countSpan = document.getElementById('count') as HTMLSpanElement;
 // Current site state
 let currentSiteUrl = '';
 
-// Load and display blocked websites
 async function loadWebsites(): Promise<void> {
   const data = (await chrome.storage.sync.get([
     'blockedSites',
@@ -43,7 +44,6 @@ async function loadWebsites(): Promise<void> {
     websiteList.appendChild(li);
   });
 
-  // Add event listeners to remove buttons
   document.querySelectorAll('.remove-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const site = (btn as HTMLButtonElement).dataset.site;
@@ -55,14 +55,19 @@ async function loadWebsites(): Promise<void> {
 // Get current tab URL
 async function getCurrentSite(): Promise<void> {
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
     if (tab?.url) {
       const url = new URL(tab.url);
       currentSiteUrl = url.hostname.replace(/^www\./, '');
       currentSiteDiv.textContent = currentSiteUrl;
 
       // Check if already blocked
-      const data = (await chrome.storage.sync.get('blockedSites')) as StorageData;
+      const data = (await chrome.storage.sync.get(
+        'blockedSites'
+      )) as StorageData;
       const blockedSites = data.blockedSites || [];
 
       if (blockedSites.includes(currentSiteUrl)) {

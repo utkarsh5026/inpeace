@@ -350,7 +350,8 @@
     rgba(0, 0, 0, 0.98) 150px
   );
   pointer-events: none;
-  z-index: 10002;
+  z-index: 10000;
+  mix-blend-mode: normal;
 }
 
 #stage2.dark-mode {
@@ -375,20 +376,19 @@
   height: 100%;
 }
 
-/* Flashlight message positioning */
+/* Flashlight message always visible above overlay */
 #flashlightMessage {
-  z-index: 10001;
+  z-index: 10003;
 }
 
-/* Button container and button */
+/* Button container sits BELOW overlay so button is only visible through spotlight */
 #buttonContainer {
-  z-index: 10000;
+  z-index: 100;
 }
 
 /* Keep button visible and clickable */
 #stage2.dark-mode #shameButtonMoving {
   opacity: 1;
   pointer-events: auto;
-  position: relative;
-  z-index: 1;
+  position: absolute;
 }

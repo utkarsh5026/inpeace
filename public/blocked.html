@@ -5,354 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Site Blocked - InPeace</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="blocked.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <style>
-      @keyframes float {
-        0%,
-        100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-20px);
-        }
-      }
-
-      .float-animation {
-        animation: float 3s ease-in-out infinite;
-      }
-
-      @keyframes shake {
-        0%,
-        100% {
-          transform: translateX(0);
-        }
-        10%,
-        30%,
-        50%,
-        70%,
-        90% {
-          transform: translateX(-10px);
-        }
-        20%,
-        40%,
-        60%,
-        80% {
-          transform: translateX(10px);
-        }
-      }
-
-      @keyframes screenShake1 {
-        0%,
-        100% {
-          transform: translate(0, 0);
-        }
-        25% {
-          transform: translate(-2px, 2px);
-        }
-        50% {
-          transform: translate(2px, -2px);
-        }
-        75% {
-          transform: translate(-2px, -2px);
-        }
-      }
-
-      @keyframes screenShake2 {
-        0%,
-        100% {
-          transform: translate(0, 0);
-        }
-        25% {
-          transform: translate(-3px, 3px);
-        }
-        50% {
-          transform: translate(3px, -3px);
-        }
-        75% {
-          transform: translate(-3px, -3px);
-        }
-      }
-
-      @keyframes screenShake3 {
-        0%,
-        100% {
-          transform: translate(0, 0);
-        }
-        25% {
-          transform: translate(-4px, 4px);
-        }
-        50% {
-          transform: translate(4px, -4px);
-        }
-        75% {
-          transform: translate(-4px, -4px);
-        }
-      }
-
-      @keyframes screenShake4 {
-        0%,
-        100% {
-          transform: translate(0, 0);
-        }
-        25% {
-          transform: translate(-5px, 5px);
-        }
-        50% {
-          transform: translate(5px, -5px);
-        }
-        75% {
-          transform: translate(-5px, -5px);
-        }
-      }
-
-      @keyframes screenShake5 {
-        0%,
-        100% {
-          transform: translate(0, 0);
-        }
-        10% {
-          transform: translate(-6px, 6px) rotate(0.3deg);
-        }
-        20% {
-          transform: translate(6px, -6px) rotate(-0.3deg);
-        }
-        30% {
-          transform: translate(-6px, -6px) rotate(0.3deg);
-        }
-        40% {
-          transform: translate(6px, 6px) rotate(-0.3deg);
-        }
-        50% {
-          transform: translate(-6px, 6px) rotate(0.3deg);
-        }
-        60% {
-          transform: translate(6px, -6px) rotate(-0.3deg);
-        }
-        70% {
-          transform: translate(-6px, -6px) rotate(0.3deg);
-        }
-        80% {
-          transform: translate(6px, 6px) rotate(-0.3deg);
-        }
-        90% {
-          transform: translate(-3px, 3px);
-        }
-      }
-
-      .screen-shake-1 {
-        animation: screenShake1 0.4s ease-in-out;
-      }
-      .screen-shake-2 {
-        animation: screenShake2 0.4s ease-in-out;
-      }
-      .screen-shake-3 {
-        animation: screenShake3 0.4s ease-in-out;
-      }
-      .screen-shake-4 {
-        animation: screenShake4 0.4s ease-in-out;
-      }
-      .screen-shake-5 {
-        animation: screenShake5 0.5s ease-in-out;
-      }
-
-      @keyframes buttonTextFlash {
-        0% {
-          transform: scale(1);
-          color: white;
-        }
-        50% {
-          transform: scale(1.15);
-          color: #fca5a5;
-          text-shadow: 0 0 20px rgba(252, 165, 165, 0.8);
-        }
-        100% {
-          transform: scale(1);
-          color: white;
-        }
-      }
-
-      .button-text-change {
-        animation: buttonTextFlash 0.6s ease-out;
-      }
-
-      @keyframes intensePulse {
-        0%,
-        100% {
-          transform: scale(1);
-          opacity: 1;
-        }
-        50% {
-          transform: scale(1.1);
-          opacity: 0.8;
-        }
-      }
-
-      @keyframes glowPulse {
-        0%,
-        100% {
-          box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
-        }
-        50% {
-          box-shadow:
-            0 0 40px rgba(239, 68, 68, 0.9),
-            0 0 60px rgba(239, 68, 68, 0.6);
-        }
-      }
-
-      .stage3-intense {
-        animation: intensePulse 2s ease-in-out infinite;
-      }
-
-      /* Stage 3 Animation */
-      @keyframes containerDrop {
-        0% {
-          transform: translateY(-100vh);
-          opacity: 0;
-        }
-        70% {
-          transform: translateY(20px);
-        }
-        85% {
-          transform: translateY(-10px);
-        }
-        100% {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-
-      #stage3:not(.hidden) {
-        transform: translateY(-100vh);
-        opacity: 0;
-      }
-
-      #stage3.stage3-container {
-        animation: containerDrop 4s ease-out forwards;
-      }
-
-      .final-checkbox-container {
-        animation: glowPulse 3s ease-in-out infinite;
-      }
-
-      @keyframes countdown {
-        0% {
-          opacity: 0;
-          transform: scale(3);
-        }
-        50% {
-          opacity: 1;
-        }
-        100% {
-          opacity: 0;
-          transform: scale(0.5);
-        }
-      }
-
-      .countdown-number {
-        animation: countdown 1s ease-out;
-      }
-
-      @keyframes fadeInScale {
-        0% {
-          opacity: 0;
-          transform: scale(0.8);
-        }
-        100% {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.05);
-        }
-      }
-
-      @keyframes slideDown {
-        0% {
-          opacity: 0;
-          transform: translateY(-50px);
-        }
-        100% {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes fillShame {
-        0% {
-          width: 0%;
-        }
-        100% {
-          width: var(--fill-width);
-        }
-      }
-
-      .shake-animation {
-        animation: shake 0.5s ease-in-out;
-      }
-
-      .fade-in-scale {
-        animation: fadeInScale 0.8s ease-out forwards;
-      }
-
-      .pulse-animation {
-        animation: pulse 0.6s ease-in-out;
-      }
-
-      .slide-down {
-        animation: slideDown 0.6s ease-out forwards;
-      }
-
-      .shame-meter-fill {
-        animation: fillShame 0.4s ease-out forwards;
-      }
-
-      #shameRitual {
-        transition: opacity 0.5s ease-in-out;
-      }
-
-      /* Fade transitions for stages */
-      .stage-fade-out {
-        animation: fadeOut 0.5s ease-out forwards;
-      }
-
-      .stage-fade-in {
-        animation: fadeIn 0.5s ease-in forwards;
-      }
-
-      @keyframes fadeOut {
-        from {
-          opacity: 1;
-        }
-        to {
-          opacity: 0;
-        }
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      .hidden {
-        display: none !important;
-      }
-    </style>
   </head>
   <body
     class="font-sans bg-white min-h-screen flex items-center justify-center text-gray-900"
@@ -405,71 +64,69 @@
         </div>
 
         <!-- Stage 2: Click Challenge -->
-        <div id="stage2" class="hidden">
-          <div
-            id="shameEmoji"
-            class="text-6xl mb-6 transition-all duration-500 filter drop-shadow-2xl"
-          >
-            😞
-          </div>
-          <h2
-            id="shameTitle"
-            class="text-4xl font-black mb-6 transition-all duration-300 font-display tracking-tight text-gray-900"
-          >
-            If you really must...
-          </h2>
-          <p
-            id="shameSubtext"
-            class="text-xl mb-6 font-bold opacity-95 transition-all duration-300 leading-relaxed text-gray-800"
-          >
-            Click the button below
-            <span class="text-red-600 text-3xl font-black">10 times</span> to
-            prove your commitment to wasting time.
-          </p>
+        <div id="stage2" class="hidden relative">
+          <!-- Flashlight Overlay -->
+          <div id="flashlightOverlay" class="hidden"></div>
 
-          <!-- Shame Meter -->
-          <div class="mb-8">
+          <!-- Initial View (before first click) -->
+          <div id="initialView" class="text-center">
             <div
-              class="text-xl mb-3 font-black uppercase tracking-wider text-orange-600"
+              id="shameEmoji"
+              class="text-6xl mb-6 transition-all duration-500 filter drop-shadow-2xl"
             >
-              Shame Meter
+              😞
             </div>
-            <div
-              class="w-full h-12 bg-gray-200 rounded-xl overflow-hidden border-3 border-red-600 shadow-2xl shadow-red-600/30"
+            <h2
+              id="shameTitle"
+              class="text-4xl font-black mb-6 transition-all duration-300 font-display tracking-tight text-gray-900"
             >
-              <div
-                id="shameMeterFill"
-                class="h-full bg-gradient-to-r from-yellow-400 via-orange-600 to-red-600 transition-all duration-400"
-                style="width: 0%"
-              ></div>
-            </div>
-            <div class="text-4xl font-black mt-4 text-red-600">
-              <span id="clickCount">0</span> / 10
-            </div>
+              If you really must...
+            </h2>
+            <p
+              id="shameSubtext"
+              class="text-xl mb-8 font-bold opacity-95 transition-all duration-300 leading-relaxed text-gray-800"
+            >
+              Click the button below
+              <span class="text-red-600 text-3xl font-black">10 times</span> to
+              prove your commitment to wasting time.
+            </p>
+
+            <!-- Button for initial click -->
+            <button
+              id="shameButton"
+              class="px-10 py-5 bg-red-600 text-white text-xl font-black rounded-xl shadow-2xl shadow-red-600/50 hover:bg-red-700 hover:shadow-red-600/70 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 border-2 border-red-800 uppercase tracking-wide"
+            >
+              I Have No Self-Control
+            </button>
           </div>
 
-          <!-- Cooldown Bar -->
-          <div class="mb-8">
-            <div
-              class="w-full h-2 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-400"
-            >
-              <div
-                id="cooldownBar"
-                class="h-full bg-gradient-to-r from-blue-600 to-blue-400"
-                style="width: 0%"
-              ></div>
+          <!-- Flashlight Mode (fullscreen search area) -->
+          <div id="flashlightMode" class="hidden">
+            <!-- Message at top -->
+            <div id="flashlightMessage" class="fixed top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center z-101">
+              <div class="text-6xl mb-6 filter drop-shadow-2xl">🔦</div>
+              <h2
+                class="text-4xl font-black mb-4 font-display tracking-tight text-white"
+              >
+                Find Your Shame Button
+              </h2>
+              <p class="text-xl font-bold text-gray-300">
+                Move your cursor to search... Click it
+                <span class="text-red-400 text-3xl font-black mx-2"><span id="clickCount">0</span> / 10</span> times
+              </p>
             </div>
-            <div class="text-sm mt-2 opacity-70 font-semibold text-gray-700">
-              Wait for the cooldown...
+
+            <!-- Fullscreen button container -->
+            <div id="buttonContainer" class="fixed inset-0 z-50">
+              <button
+                id="shameButtonMoving"
+                class="absolute px-10 py-5 bg-red-600 text-white text-xl font-black rounded-xl shadow-2xl shadow-red-600/50 hover:bg-red-700 hover:shadow-red-600/70 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 border-2 border-red-800 uppercase tracking-wide"
+                style="left: 50%; top: 50%; transform: translate(-50%, -50%); transition: all 0.3s ease;"
+              >
+                I Have No Self-Control
+              </button>
             </div>
           </div>
-
-          <button
-            id="shameButton"
-            class="px-10 py-5 bg-red-600 text-white text-xl font-black rounded-xl shadow-2xl shadow-red-600/50 hover:bg-red-700 hover:shadow-red-600/70 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 border-2 border-red-800 uppercase tracking-wide"
-          >
-            I Have No Self-Control
-          </button>
         </div>
 
         <!-- Stage 3: Shameless Message -->
