@@ -1,157 +1,65 @@
 /// <reference types="chrome" />
-import { StorageData } from './types';
-import {
-  DEFAULT_BLOCKED_SITES,
-  BLOCKED_SITES_KEY,
-  TEMP_WHITELIST_KEY,
-} from './constants';
+import { DEFAULT_BLOCKED_SITES } from './constants';
+import { initializeStorage } from './services/storage';
+import { updateBlockingRules } from './services/ruleManager';
 
-const runOnInstall = async () => {
-  const { blockedSites } = (await chrome.storage.sync.get(
-    BLOCKED_SITES_KEY
-  )) as StorageData;
-
-  if (!blockedSites) {
-    await chrome.storage.sync.set({
-      blockedSites: DEFAULT_BLOCKED_SITES,
-      isEnabled: true,
-    });
-  }
-
+/**
+ * Initializes extension on installation
+ */
+async function handleInstall(): Promise<void> {
+  await initializeStorage(DEFAULT_BLOCKED_SITES);
   await updateBlockingRules();
-};
-chrome.runtime.onInstalled.addListener(runOnInstall);
+}
 
-// Listen for storage changes
-chrome.storage.onChanged.addListener(async (changes, namespace) => {
-  if (namespace === 'sync' && (changes.blockedSites || changes.isEnabled)) {
+chrome.runtime.onInstalled.addListener(handleInstall);
+
+/**
+ * Handles storage changes and triggers rule updates when necessary
+ */
+async function handleStorageChange(
+  changes: { [key: string]: chrome.storage.StorageChange },
+  namespace: string
+): Promise<void> {
+  const shouldUpdate =
+    (namespace === 'sync' && (changes.blockedSites || changes.isEnabled)) ||
+    (namespace === 'local' && changes.tempWhitelist);
+
+  if (shouldUpdate) {
     await updateBlockingRules();
-  }
-  if (namespace === 'local' && changes.tempWhitelist) {
-    await updateBlockingRules();
-  }
-});
-
-// Periodic cleanup of expired whitelist entries (every 5 minutes)
-chrome.alarms.create('cleanupWhitelist', { periodInMinutes: 5 });
-chrome.alarms.onAlarm.addListener(alarm => {
-  if (alarm.name === 'cleanupWhitelist') {
-    updateBlockingRules(); // This will clean up expired entries
-  }
-});
-
-let isUpdating = false;
-
-// Update the declarative net request rules
-async function updateBlockingRules(): Promise<void> {
-  if (isUpdating) {
-    console.log('Update already in progress, skipping...');
-    return;
-  }
-
-  isUpdating = true;
-
-  try {
-    const data = (await chrome.storage.sync.get([
-      BLOCKED_SITES_KEY,
-      'isEnabled',
-    ])) as StorageData & { isEnabled?: boolean };
-    const { blockedSites = [], isEnabled = true } = data;
-
-    const tempWhitelistData =
-      await chrome.storage.local.get(TEMP_WHITELIST_KEY);
-    const tempWhitelist: { [site: string]: number } =
-      tempWhitelistData.tempWhitelist || {};
-    const now = Date.now();
-
-    const cleanedWhitelist: { [site: string]: number } = {};
-    for (const [site, expiration] of Object.entries(tempWhitelist)) {
-      if (expiration > now) {
-        cleanedWhitelist[site] = expiration;
-      }
-    }
-
-    if (
-      Object.keys(cleanedWhitelist).length !== Object.keys(tempWhitelist).length
-    ) {
-      await chrome.storage.local.set({ tempWhitelist: cleanedWhitelist });
-    }
-
-    const activeSites = blockedSites.filter(site => !cleanedWhitelist[site]);
-    const uniqueSites = [...new Set(activeSites)];
-
-    const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
-    const existingRuleIds = existingRules.map(rule => rule.id);
-
-    if (existingRuleIds.length > 0) {
-      await chrome.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds: existingRuleIds,
-      });
-    }
-
-    if (!isEnabled || !uniqueSites || uniqueSites.length === 0) {
-      return;
-    }
-
-    // Create new rules (two rules per domain: one for bare domain, one for subdomains)
-    const rules: chrome.declarativeNetRequest.Rule[] = [];
-    uniqueSites.forEach((domain, index) => {
-      rules.push({
-        id: index * 2 + 1,
-        priority: 1,
-        action: {
-          type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
-          redirect: {
-            url:
-              chrome.runtime.getURL('blocked.html') +
-              '?site=' +
-              encodeURIComponent(domain),
-          },
-        },
-        condition: {
-          urlFilter: `*://${domain}/*`,
-          resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME],
-        },
-      });
-
-      rules.push({
-        id: index * 2 + 2,
-        priority: 1,
-        action: {
-          type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
-          redirect: {
-            url:
-              chrome.runtime.getURL('blocked.html') +
-              '?site=' +
-              encodeURIComponent(domain),
-          },
-        },
-        condition: {
-          urlFilter: `*://*.${domain}/*`,
-          resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME],
-        },
-      });
-    });
-
-    if (rules.length > 0) {
-      await chrome.declarativeNetRequest.updateDynamicRules({
-        addRules: rules,
-      });
-    }
-  } catch (error) {
-    console.error('Error updating blocking rules:', error);
-  } finally {
-    isUpdating = false;
   }
 }
 
-chrome.runtime.onMessage.addListener(
-  (request: { action: string }, sender, sendResponse) => {
-    if (request.action === 'updateRules') {
-      updateBlockingRules().then(() => {
-        sendResponse({ success: true });
-      });
-      return true;
+chrome.storage.onChanged.addListener(handleStorageChange);
+
+/**
+ * Sets up periodic cleanup of expired whitelist entries
+ */
+function setupPeriodicCleanup(): void {
+  chrome.alarms.create('cleanupWhitelist', { periodInMinutes: 5 });
+  chrome.alarms.onAlarm.addListener(alarm => {
+    if (alarm.name === 'cleanupWhitelist') {
+      updateBlockingRules();
     }
+  });
+}
+
+setupPeriodicCleanup();
+
+/**
+ * Handles messages from other parts of the extension
+ */
+function handleMessage(
+  request: { action: string },
+  _sender: chrome.runtime.MessageSender,
+  sendResponse: (response: { success: boolean }) => void
+): boolean {
+  if (request.action === 'updateRules') {
+    updateBlockingRules().then(() => {
+      sendResponse({ success: true });
+    });
+    return true; // Keep channel open for async response
   }
-);
+  return false;
+}
+
+chrome.runtime.onMessage.addListener(handleMessage);
