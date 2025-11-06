@@ -31,5 +31,11 @@
   },
   "declarative_net_request": {
     "rule_resources": []
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["blocked.html", "blocked.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
