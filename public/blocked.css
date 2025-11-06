@@ -347,8 +347,8 @@
     circle 180px at var(--mouse-x, 50%) var(--mouse-y, 50%),
     rgba(255, 255, 255, 0.2) 0%,
     rgba(255, 255, 255, 0.12) 60px,
-    rgba(0, 0, 0, 0.8) 140px,
-    rgba(0, 0, 0, 0.98) 180px
+    rgba(0, 0, 0, 0.95) 140px,
+    rgba(0, 0, 0, 1) 180px
   );
   pointer-events: none;
   z-index: 10000;
