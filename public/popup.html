@@ -5,53 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>InPeace</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="w-[360px] bg-gray-50 font-cascadia">
+<body class="w-[360px] bg-calm-50 font-sans">
   <div class="bg-white">
     <!-- Header -->
-    <header class="bg-gradient-to-br from-indigo-600 to-purple-700 text-white p-5 text-center">
-      <h1 class="text-2xl font-bold mb-1">🕊️ InPeace</h1>
+    <header class="bg-gradient-to-br from-calm-500 to-calm-700 text-white p-5 text-center shadow-lg">
+      <h1 class="text-2xl font-bold mb-1 font-display">🕊️ InPeace</h1>
       <p class="text-xs opacity-90">Stay focused, stay peaceful</p>
     </header>
 
     <!-- Toggle Section -->
-    <div class="flex items-center justify-center gap-3 p-4 bg-gray-50 border-b border-gray-200">
+    <div class="flex items-center justify-center gap-3 p-4 bg-calm-50 border-b border-calm-200">
       <label class="relative inline-block w-12 h-6 cursor-pointer">
         <input type="checkbox" id="enableToggle" class="opacity-0 w-0 h-0 peer">
-        <span class="absolute inset-0 bg-gray-300 rounded-full transition-all peer-checked:bg-indigo-600 before:absolute before:content-[''] before:h-4 before:w-4 before:left-1 before:bottom-1 before:bg-white before:rounded-full before:transition-transform peer-checked:before:translate-x-6"></span>
+        <span class="absolute inset-0 bg-gray-300 rounded-full transition-all peer-checked:bg-calm-600 before:absolute before:content-[''] before:h-4 before:w-4 before:left-1 before:bottom-1 before:bg-white before:rounded-full before:transition-transform peer-checked:before:translate-x-6 shadow-inner"></span>
       </label>
       <span id="statusText" class="font-medium text-gray-800">Extension Enabled</span>
     </div>
 
     <!-- Input Section -->
-    <div class="flex gap-2 p-4">
+    <div class="flex gap-2 p-4 bg-white">
       <input
         type="text"
         id="websiteInput"
         placeholder="e.g., reddit.com"
-        class="flex-1 px-3 py-2 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-600 transition-colors"
+        class="flex-1 px-3 py-2 border-2 border-calm-200 rounded-lg text-sm focus:outline-none focus:border-calm-600 focus:ring-2 focus:ring-calm-200 transition-all"
       />
       <button
         id="addBtn"
-        class="px-4 py-2 bg-indigo-600 text-white rounded-md font-medium text-sm hover:bg-indigo-700 transition-colors"
+        class="px-4 py-2 bg-calm-600 text-white rounded-lg font-semibold text-sm hover:bg-calm-700 active:scale-95 transition-all shadow-md hover:shadow-lg"
       >
         Add
       </button>
     </div>
 
     <!-- List Section -->
-    <div class="px-4 pb-4 max-h-[300px] overflow-y-auto">
-      <h3 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">
+    <div class="px-4 pb-4 max-h-[300px] overflow-y-auto bg-white">
+      <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
         Blocked Websites (<span id="count">0</span>)
       </h3>
       <ul id="websiteList" class="space-y-2"></ul>
     </div>
 
     <!-- Footer -->
-    <footer class="p-4 border-t border-gray-200 bg-gray-50">
+    <footer class="p-4 border-t border-calm-200 bg-calm-50">
       <button
         id="resetBtn"
-        class="w-full px-4 py-2 bg-white text-gray-700 border-2 border-gray-200 rounded-md font-medium text-sm hover:bg-gray-50 hover:border-gray-300 transition-all"
+        class="w-full px-4 py-2 bg-white text-gray-700 border-2 border-calm-200 rounded-lg font-medium text-sm hover:bg-calm-100 hover:border-calm-300 active:scale-95 transition-all shadow-sm"
       >
         Reset to Default
       </button>

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Site Blocked - InPeace</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
       @keyframes float {
         0%,
@@ -278,43 +281,43 @@
     </style>
   </head>
   <body
-    class="font-cascadia bg-gray-900 min-h-screen flex items-center justify-center text-white"
+    class="font-sans bg-shame-bg min-h-screen flex items-center justify-center text-shame-text"
   >
     <!-- Shame Ritual Container -->
     <div
       id="shameRitual"
-      class="fixed inset-0 flex items-center justify-center z-50"
+      class="fixed inset-0 flex items-center justify-center z-50 overflow-y-auto"
     >
-      <div class="text-center px-10 py-16 max-w-2xl mx-auto">
+      <div class="text-center px-6 py-8 max-w-4xl mx-auto w-full">
         <!-- Stage 1: Disappointment Message -->
         <div id="stage1" class="hidden">
-          <div class="text-9xl mb-8">😔</div>
-          <h2 class="text-6xl font-bold mb-8">
+          <div class="text-7xl mb-6 filter drop-shadow-2xl">😔</div>
+          <h2 class="text-5xl font-black mb-6 font-display tracking-tight leading-tight">
             What are you doing,<br />my friend?
           </h2>
 
           <!-- Blocked Site Display -->
           <div
             id="blockedSite"
-            class="inline-block text-2xl mb-8 px-6 py-4 bg-white/10 backdrop-blur-sm rounded-xl"
+            class="inline-block text-2xl mb-6 px-6 py-3 bg-shame-red/20 backdrop-blur-sm rounded-xl border-2 border-shame-red font-bold text-shame-red-light"
           >
             Site Blocked
           </div>
 
-          <p class="text-2xl opacity-90 mb-10">
+          <p class="text-2xl font-semibold opacity-95 mb-8 leading-relaxed">
             You know this isn't the right path...
           </p>
 
-          <div class="flex gap-6 justify-center">
+          <div class="flex gap-4 justify-center flex-wrap">
             <button
               data-action="close"
-              class="px-10 py-5 text-xl bg-gray-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 hover:bg-gray-600"
+              class="px-8 py-4 text-lg bg-gray-800 text-white font-bold rounded-xl shadow-2xl hover:shadow-red-500/20 hover:-translate-y-1 transition-all duration-300 hover:bg-gray-700 border-2 border-gray-700"
             >
               Close Tab
             </button>
             <button
               id="proceedBtn"
-              class="px-10 cursor-pointer py-5 text-xl bg-red-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 hover:bg-red-700"
+              class="px-8 cursor-pointer py-4 text-lg bg-red-600 text-white font-black rounded-xl shadow-2xl shadow-red-600/40 hover:shadow-red-600/60 hover:-translate-y-1 transition-all duration-300 hover:bg-red-700 border-2 border-red-800"
             >
               Yes, I Want to Lose My Self-Respect 😞
             </button>
@@ -323,45 +326,45 @@
 
         <!-- Stage 2: Click Challenge -->
         <div id="stage2" class="hidden">
-          <div id="shameEmoji" class="text-7xl mb-8 transition-all duration-500">😞</div>
-          <h2 id="shameTitle" class="text-4xl font-bold mb-6 transition-all duration-300">If you really must...</h2>
-          <p id="shameSubtext" class="text-xl mb-8 opacity-90 transition-all duration-300">
-            Click the button below 10 times to prove your commitment to wasting
+          <div id="shameEmoji" class="text-6xl mb-6 transition-all duration-500 filter drop-shadow-2xl">😞</div>
+          <h2 id="shameTitle" class="text-4xl font-black mb-6 transition-all duration-300 font-display tracking-tight">If you really must...</h2>
+          <p id="shameSubtext" class="text-xl mb-6 font-bold opacity-95 transition-all duration-300 leading-relaxed">
+            Click the button below <span class="text-shame-red text-3xl font-black">10 times</span> to prove your commitment to wasting
             time.
           </p>
 
           <!-- Shame Meter -->
           <div class="mb-8">
-            <div class="text-lg mb-3 font-semibold">Shame Meter</div>
+            <div class="text-xl mb-3 font-black uppercase tracking-wider text-shame-yellow">Shame Meter</div>
             <div
-              class="w-full h-12 bg-gray-800 rounded-full overflow-hidden border-4 border-red-500"
+              class="w-full h-12 bg-shame-darker rounded-xl overflow-hidden border-3 border-shame-red shadow-2xl shadow-shame-red/30"
             >
               <div
                 id="shameMeterFill"
-                class="h-full bg-gradient-to-r from-yellow-500 via-orange-500 to-red-600 transition-all duration-400"
+                class="h-full bg-gradient-to-r from-shame-yellow via-orange-600 to-shame-red transition-all duration-400"
                 style="width: 0%"
               ></div>
             </div>
-            <div class="text-3xl font-bold mt-4">
+            <div class="text-4xl font-black mt-4 text-shame-red-light">
               <span id="clickCount">0</span> / 10
             </div>
           </div>
 
           <!-- Cooldown Bar -->
           <div class="mb-8">
-            <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+            <div class="w-full h-2 bg-shame-darker rounded-full overflow-hidden border-2 border-gray-700">
               <div
                 id="cooldownBar"
-                class="h-full bg-blue-500"
+                class="h-full bg-gradient-to-r from-blue-600 to-blue-400"
                 style="width: 0%"
               ></div>
             </div>
-            <div class="text-sm mt-2 opacity-70">Wait for the cooldown...</div>
+            <div class="text-sm mt-2 opacity-70 font-semibold">Wait for the cooldown...</div>
           </div>
 
           <button
             id="shameButton"
-            class="px-12 py-6 bg-red-600 text-white text-xl font-bold rounded-lg shadow-2xl hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            class="px-10 py-5 bg-shame-red text-white text-xl font-black rounded-xl shadow-2xl shadow-shame-red/50 hover:bg-shame-red-dark hover:shadow-shame-red/70 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 border-2 border-shame-red-darker uppercase tracking-wide"
           >
             I Have No Self-Control
           </button>
@@ -369,42 +372,42 @@
 
         <!-- Stage 3: Shameless Message -->
         <div id="stage3" class="hidden">
-          <div class="text-9xl mb-8">🤦</div>
-          <h2 class="text-6xl font-bold mb-8 text-red-400">
+          <div class="text-7xl mb-6 filter drop-shadow-2xl">🤦</div>
+          <h2 class="text-5xl font-black mb-6 text-shame-red font-display tracking-tighter leading-none">
             You are shameless
           </h2>
-          <p class="text-3xl opacity-90 mb-6 font-semibold">
+          <p class="text-3xl opacity-95 mb-6 font-black">
             You actually clicked it 10 times...
           </p>
-          <p class="text-xl opacity-70 italic">
+          <p class="text-2xl opacity-80 italic font-bold text-shame-red-light">
             What would your family think?
           </p>
         </div>
 
         <!-- Stage 4: Final Checkbox -->
         <div id="stage4" class="hidden">
-          <div class="text-8xl mb-6">⏰</div>
-          <h2 class="text-5xl font-bold mb-4 text-red-400">Wait.</h2>
-          <p class="text-2xl mb-10 opacity-80">Are you absolutely certain?</p>
+          <div class="text-7xl mb-6 filter drop-shadow-2xl">⏰</div>
+          <h2 class="text-5xl font-black mb-4 text-shame-red font-display tracking-tight">Wait.</h2>
+          <p class="text-2xl mb-8 font-bold opacity-90">Are you absolutely certain?</p>
 
           <!-- Countdown overlay -->
-          <div id="countdownOverlay" class="fixed inset-0 flex items-center justify-center bg-black/80 z-50 hidden">
-            <div id="countdownNumber" class="text-9xl font-bold text-red-500 countdown-number"></div>
+          <div id="countdownOverlay" class="fixed inset-0 flex items-center justify-center bg-black/90 z-50 hidden backdrop-blur-sm">
+            <div id="countdownNumber" class="text-9xl font-black text-shame-red countdown-number font-display"></div>
           </div>
 
-          <div class="bg-black/50 p-10 rounded-xl border-2 border-red-500 mb-10 final-checkbox-container">
+          <div class="bg-shame-darker/80 p-8 rounded-xl border-3 border-shame-red mb-8 final-checkbox-container backdrop-blur-sm">
             <label
-              class="flex items-start gap-5 cursor-pointer text-left group"
+              class="flex items-start gap-4 cursor-pointer text-left group"
             >
               <input
                 type="checkbox"
                 id="finalCheckbox"
-                class="mt-1.5 w-7 h-7 cursor-pointer accent-red-600"
+                class="mt-1.5 w-7 h-7 cursor-pointer accent-shame-red flex-shrink-0"
               />
               <span
-                class="text-2xl leading-relaxed group-hover:text-red-300 transition-colors"
+                class="text-xl leading-relaxed group-hover:text-shame-red-light transition-colors font-semibold"
               >
-                I choose to waste my time. <span class="font-bold text-red-400">I can never get it back</span>.
+                I choose to waste my time. <span class="font-black text-shame-red text-2xl">I can never get it back</span>.
               </span>
             </label>
           </div>
@@ -412,12 +415,12 @@
           <button
             id="proceedFinalBtn"
             disabled
-            class="px-12 py-6 bg-gray-600 text-white text-xl font-bold rounded-lg shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700"
+            class="px-10 py-5 bg-gray-800 text-white text-xl font-black rounded-xl shadow-2xl transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-shame-red-dark hover:shadow-shame-red/60 border-2 border-gray-700 uppercase tracking-wide"
           >
             Proceed to Waste Time
           </button>
 
-          <p class="text-sm mt-6 opacity-50 italic">You'll regret this.</p>
+          <p class="text-base mt-6 opacity-60 italic font-bold">You'll regret this.</p>
         </div>
       </div>
     </div>
