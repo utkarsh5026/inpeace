@@ -4,6 +4,10 @@ A Chrome extension that blocks distracting websites with a twist - users must co
 
 ## Demo
 
+
+https://github.com/user-attachments/assets/5d544625-89e7-4eec-aeb3-329b3be2f67f
+
+
 <video src="video/demo.mp4" controls></video>
 
 ## The Intention
