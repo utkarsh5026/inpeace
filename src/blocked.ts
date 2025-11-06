@@ -292,6 +292,15 @@ function moveButtonRandomly(): void {
 
   console.log('Viewport dimensions:', viewportWidth, 'x', viewportHeight);
 
+  // Get flashlight message dimensions to avoid overlap
+  const flashlightMessage = document.getElementById('flashlightMessage');
+  let messageBottom = 0;
+  if (flashlightMessage) {
+    const messageRect = flashlightMessage.getBoundingClientRect();
+    messageBottom = messageRect.bottom + 20; // Add 20px buffer below message
+    console.log('Flashlight message bottom:', messageBottom);
+  }
+
   // Minimum margin from edges (16px as requested)
   const margin = 16;
 
@@ -299,7 +308,7 @@ function moveButtonRandomly(): void {
   // The button will be positioned absolutely from its top-left corner
   const minX = margin;
   const maxX = viewportWidth - buttonWidth - margin;
-  const minY = margin;
+  const minY = Math.max(margin, messageBottom); // Don't place button above the message
   const maxY = viewportHeight - buttonHeight - margin;
 
   console.log('Safe bounds - X:', minX, 'to', maxX, '| Y:', minY, 'to', maxY);
