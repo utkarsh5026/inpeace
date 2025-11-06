@@ -114,8 +114,8 @@ let buttonFound = false;
 // Timer Logic
 let clickTimer: number | null = null;
 let timerInterval: number | null = null;
-let timeRemaining = 3000; // 3 seconds in milliseconds
-const TIMER_DURATION = 3000; // 3 seconds
+let timeRemaining = 2000; // 2 seconds in milliseconds
+const TIMER_DURATION = 2000; // 2 seconds
 const TIMER_UPDATE_INTERVAL = 50; // Update every 50ms for smooth animation
 
 // Progressive messages for each click
@@ -203,9 +203,6 @@ function updateTimerDisplay(): void {
 }
 
 function handleTimerExpiry(): void {
-  // Stop the timer
-  clearClickTimer();
-
   // Only go back if we have clicks to lose
   if (clickCount > 0) {
     // Go back one step
@@ -225,15 +222,13 @@ function handleTimerExpiry(): void {
       shameButtonMoving.textContent = 'I Have No Self-Control';
     }
 
-    // Re-enable clicking and move button again
-    canClick = true;
-    if (shameButtonMoving) {
-      shameButtonMoving.disabled = false;
-    }
-
     // Move button to new random position
     moveButtonRandomly();
   }
+
+  // IMPORTANT: Restart the timer immediately - no breaks!
+  // The timer keeps running until they reach 10 clicks
+  startClickTimer();
 }
 
 // Start at stage 1 immediately when page loads
@@ -507,7 +502,7 @@ function handleShameClick(): void {
       deactivateFlashlight();
     }
 
-    // Clear timer on final click
+    // Clear timer on final click - they won!
     clearClickTimer();
 
     // Keep button disabled after 10th click
@@ -526,7 +521,7 @@ function handleShameClick(): void {
         shameButtonMoving.disabled = false;
       }
 
-      // Start the timer for the next click
+      // Start the timer for the next click - pressure is on!
       startClickTimer();
     }, 300); // Brief delay before next round
   }
