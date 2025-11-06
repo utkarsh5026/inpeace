@@ -111,6 +111,13 @@ let clickCooldown = 800; // Start with 800ms cooldown
 let isFlashlightActive = false;
 let buttonFound = false;
 
+// Timer Logic
+let clickTimer: number | null = null;
+let timerInterval: number | null = null;
+let timeRemaining = 3000; // 3 seconds in milliseconds
+const TIMER_DURATION = 3000; // 3 seconds
+const TIMER_UPDATE_INTERVAL = 50; // Update every 50ms for smooth animation
+
 // Progressive messages for each click
 const shameMessages = [
   { text: 'I Have No Self-Control', emoji: '😞', scale: 1.0 },
@@ -128,6 +135,106 @@ const shameMessages = [
   { text: "One More Click... That's All It Takes", emoji: '😔', scale: 1.8 },
   { text: 'Congratulations. You Have Zero Self-Control.', emoji: '💔', scale: 2.0 },
 ];
+
+// Timer Functions
+function startClickTimer(): void {
+  // Clear any existing timer
+  clearClickTimer();
+
+  // Show timer container
+  const timerContainer = document.getElementById('timerContainer');
+  if (timerContainer) {
+    timerContainer.classList.remove('hidden');
+  }
+
+  // Reset time remaining
+  timeRemaining = TIMER_DURATION;
+  updateTimerDisplay();
+
+  // Start the countdown interval
+  timerInterval = window.setInterval(() => {
+    timeRemaining -= TIMER_UPDATE_INTERVAL;
+
+    if (timeRemaining <= 0) {
+      handleTimerExpiry();
+    } else {
+      updateTimerDisplay();
+    }
+  }, TIMER_UPDATE_INTERVAL);
+}
+
+function clearClickTimer(): void {
+  if (timerInterval !== null) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  // Hide timer container
+  const timerContainer = document.getElementById('timerContainer');
+  if (timerContainer) {
+    timerContainer.classList.add('hidden');
+  }
+}
+
+function updateTimerDisplay(): void {
+  const timerBar = document.getElementById('timerBar');
+  const timerSeconds = document.getElementById('timerSeconds');
+
+  if (!timerBar || !timerSeconds) return;
+
+  // Calculate percentage remaining
+  const percentageRemaining = (timeRemaining / TIMER_DURATION) * 100;
+  timerBar.style.width = `${percentageRemaining}%`;
+
+  // Update seconds display
+  const secondsRemaining = (timeRemaining / 1000).toFixed(1);
+  timerSeconds.textContent = secondsRemaining;
+
+  // Update color based on time remaining
+  timerBar.classList.remove('warning', 'danger');
+  if (timeRemaining <= 1000) {
+    // Less than 1 second - danger (red)
+    timerBar.classList.add('danger');
+  } else if (timeRemaining <= 1500) {
+    // Less than 1.5 seconds - warning (yellow)
+    timerBar.classList.add('warning');
+  }
+  // else - default green color
+}
+
+function handleTimerExpiry(): void {
+  // Stop the timer
+  clearClickTimer();
+
+  // Only go back if we have clicks to lose
+  if (clickCount > 0) {
+    // Go back one step
+    clickCount--;
+
+    const clickCountDisplay = document.getElementById('clickCount');
+    if (clickCountDisplay) {
+      clickCountDisplay.textContent = clickCount.toString();
+    }
+
+    // Update button text to previous message
+    const shameButtonMoving = document.getElementById('shameButtonMoving') as HTMLButtonElement;
+    if (shameButtonMoving && clickCount > 0) {
+      const previousMessage = shameMessages[clickCount - 1];
+      shameButtonMoving.textContent = previousMessage.text;
+    } else if (shameButtonMoving && clickCount === 0) {
+      shameButtonMoving.textContent = 'I Have No Self-Control';
+    }
+
+    // Re-enable clicking and move button again
+    canClick = true;
+    if (shameButtonMoving) {
+      shameButtonMoving.disabled = false;
+    }
+
+    // Move button to new random position
+    moveButtonRandomly();
+  }
+}
 
 // Start at stage 1 immediately when page loads
 function initShameRitual(): void {
@@ -365,6 +472,9 @@ function moveButtonRandomly(): void {
 function handleShameClick(): void {
   if (!canClick || clickCount >= 10) return;
 
+  // Clear any existing timer since they clicked in time
+  clearClickTimer();
+
   canClick = false;
   clickCount++;
 
@@ -397,6 +507,9 @@ function handleShameClick(): void {
       deactivateFlashlight();
     }
 
+    // Clear timer on final click
+    clearClickTimer();
+
     // Keep button disabled after 10th click
     if (activeButton) {
       activeButton.disabled = true;
@@ -412,6 +525,9 @@ function handleShameClick(): void {
       if (shameButtonMoving) {
         shameButtonMoving.disabled = false;
       }
+
+      // Start the timer for the next click
+      startClickTimer();
     }, 300); // Brief delay before next round
   }
 }

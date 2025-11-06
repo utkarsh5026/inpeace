@@ -394,3 +394,51 @@
   pointer-events: auto;
   position: absolute;
 }
+
+/* Timer Progress Bar Styles */
+.timer-bar-container {
+  width: 300px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  margin: 0 auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.timer-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  border-radius: 8px;
+  transition: width 0.1s linear, background 0.3s ease;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+}
+
+/* Timer color states based on time remaining */
+.timer-bar.warning {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+}
+
+.timer-bar.danger {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+  animation: timerPulse 0.3s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scaleY(0.95);
+  }
+}
+
+#timerContainer {
+  z-index: 10003;
+}

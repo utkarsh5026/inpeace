@@ -114,6 +114,17 @@
                 Move your cursor to search... Click it
                 <span class="text-red-400 text-3xl font-black mx-2"><span id="clickCount">0</span> / 10</span> times
               </p>
+
+              <!-- Timer Progress Bar -->
+              <div id="timerContainer" class="mt-6 hidden">
+                <p class="text-sm font-bold text-gray-400 mb-2">Time remaining:</p>
+                <div class="timer-bar-container">
+                  <div id="timerBar" class="timer-bar"></div>
+                </div>
+                <p class="text-xs font-bold text-gray-500 mt-2">
+                  Click within <span id="timerSeconds" class="text-white">3.0</span>s or lose progress!
+                </p>
+              </div>
             </div>
 
             <!-- Fullscreen button container -->
