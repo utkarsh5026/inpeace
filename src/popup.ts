@@ -1,5 +1,6 @@
 /// <reference types="chrome" />
-import { DEFAULT_BLOCKED_SITES, StorageData } from './types';
+import { StorageData } from './types';
+import { DEFAULT_BLOCKED_SITES } from './constants';
 import './styles/main.css';
 
 // DOM elements
@@ -8,9 +9,15 @@ const addCurrentBtn = document.getElementById(
   'addCurrentBtn'
 ) as HTMLButtonElement;
 const websiteList = document.getElementById('websiteList') as HTMLUListElement;
-const whitelistList = document.getElementById('whitelistList') as HTMLUListElement;
-const whitelistSection = document.getElementById('whitelistSection') as HTMLDivElement;
-const whitelistCountSpan = document.getElementById('whitelistCount') as HTMLSpanElement;
+const whitelistList = document.getElementById(
+  'whitelistList'
+) as HTMLUListElement;
+const whitelistSection = document.getElementById(
+  'whitelistSection'
+) as HTMLDivElement;
+const whitelistCountSpan = document.getElementById(
+  'whitelistCount'
+) as HTMLSpanElement;
 const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
 const enableToggle = document.getElementById(
   'enableToggle'
@@ -98,7 +105,9 @@ async function loadWhitelistedSites(): Promise<void> {
 // Update countdown timers
 function updateCountdowns(): void {
   document.querySelectorAll('.countdown-timer').forEach(timer => {
-    const expiration = parseInt((timer as HTMLElement).dataset.expiration || '0');
+    const expiration = parseInt(
+      (timer as HTMLElement).dataset.expiration || '0'
+    );
     const timeText = formatTimeRemaining(expiration);
     timer.textContent = `Will be blocked again in ${timeText}`;
 

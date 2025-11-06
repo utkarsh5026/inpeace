@@ -27,18 +27,3 @@ export interface Message {
 export interface MessageResponse {
   success: boolean;
 }
-
-export const DEFAULT_BLOCKED_SITES: string[] = [
-  'reddit.com',
-  'twitter.com',
-  'x.com',
-  'facebook.com',
-  'instagram.com',
-  'youtube.com',
-  'tiktok.com',
-  'linkedin.com',
-  'twitch.tv',
-  'netflix.com',
-  '9gag.com',
-  'buzzfeed.com'
-];
