@@ -1,8 +1,7 @@
 /// <reference types="chrome" />
 import { DEFAULT_BLOCKED_SITES, StorageData } from './types';
 
-// Initialize extension
-chrome.runtime.onInstalled.addListener(async () => {
+const runOnInstall = async () => {
   const { blockedSites } = (await chrome.storage.sync.get(
     'blockedSites'
   )) as StorageData;
@@ -15,12 +14,24 @@ chrome.runtime.onInstalled.addListener(async () => {
   }
 
   await updateBlockingRules();
-});
+};
+chrome.runtime.onInstalled.addListener(runOnInstall);
 
 // Listen for storage changes
 chrome.storage.onChanged.addListener(async (changes, namespace) => {
   if (namespace === 'sync' && (changes.blockedSites || changes.isEnabled)) {
     await updateBlockingRules();
+  }
+  if (namespace === 'local' && changes.tempWhitelist) {
+    await updateBlockingRules();
+  }
+});
+
+// Periodic cleanup of expired whitelist entries (every 5 minutes)
+chrome.alarms.create('cleanupWhitelist', { periodInMinutes: 5 });
+chrome.alarms.onAlarm.addListener(alarm => {
+  if (alarm.name === 'cleanupWhitelist') {
+    updateBlockingRules(); // This will clean up expired entries
   }
 });
 
@@ -41,7 +52,37 @@ async function updateBlockingRules(): Promise<void> {
       'isEnabled',
     ])) as StorageData & { isEnabled?: boolean };
     const { blockedSites = [], isEnabled = true } = data;
-    const uniqueSites = [...new Set(blockedSites)];
+
+    // Get temporary whitelist and filter out expired entries
+    const tempWhitelistData = await chrome.storage.local.get('tempWhitelist');
+    const tempWhitelist: { [site: string]: number } = tempWhitelistData.tempWhitelist || {};
+    const now = Date.now();
+
+    console.log('Current tempWhitelist:', tempWhitelist);
+    console.log('Current time:', now);
+
+    // Clean up expired entries
+    const cleanedWhitelist: { [site: string]: number } = {};
+    for (const [site, expiration] of Object.entries(tempWhitelist)) {
+      if (expiration > now) {
+        cleanedWhitelist[site] = expiration;
+        console.log(`Site ${site} is whitelisted until ${new Date(expiration)}`);
+      } else {
+        console.log(`Site ${site} whitelist expired`);
+      }
+    }
+
+    // Save cleaned whitelist back
+    if (Object.keys(cleanedWhitelist).length !== Object.keys(tempWhitelist).length) {
+      await chrome.storage.local.set({ tempWhitelist: cleanedWhitelist });
+    }
+
+    // Filter out temporarily whitelisted sites from blocked sites
+    const activeSites = blockedSites.filter(site => !cleanedWhitelist[site]);
+    console.log('Sites to block:', activeSites);
+    console.log('Sites whitelisted:', Object.keys(cleanedWhitelist));
+
+    const uniqueSites = [...new Set(activeSites)];
 
     const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
     const existingRuleIds = existingRules.map(rule => rule.id);

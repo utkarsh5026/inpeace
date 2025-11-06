@@ -9,6 +9,10 @@ export interface BlockStats {
   todayCount: number;
 }
 
+export interface TempWhitelist {
+  [site: string]: number; // site name -> expiration timestamp
+}
+
 export interface Message {
   action: string;
 }

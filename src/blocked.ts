@@ -302,7 +302,7 @@ function handleFinalCheckbox(): void {
   }
 }
 
-function allowAccess(): void {
+async function allowAccess(): Promise<void> {
   // Show dramatic countdown before allowing access
   const countdownOverlay = document.getElementById('countdownOverlay');
   const countdownNumber = document.getElementById('countdownNumber');
@@ -315,6 +315,15 @@ function allowAccess(): void {
   // Disable button
   if (proceedFinalBtn) {
     proceedFinalBtn.disabled = true;
+  }
+
+  // Add site to temporary whitelist (30 minutes = 1800000ms)
+  if (site) {
+    const expirationTime = Date.now() + 30 * 60 * 1000; // 30 minutes from now
+    const result = await chrome.storage.local.get('tempWhitelist');
+    const tempWhitelist: { [site: string]: number } = result.tempWhitelist || {};
+    tempWhitelist[site] = expirationTime;
+    await chrome.storage.local.set({ tempWhitelist });
   }
 
   // Show overlay
