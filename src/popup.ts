@@ -1,7 +1,21 @@
 /// <reference types="chrome" />
 import { StorageData } from './types';
-import { DEFAULT_BLOCKED_SITES } from './constants';
+import {
+  DEFAULT_BLOCKED_SITES,
+  TEMP_WHITELIST_KEY,
+  BLOCKED_SITES_KEY,
+} from './constants';
+import {
+  getFromChromeStorage,
+  getMultipleFromChromeStorage,
+  setInChromeStorage,
+} from './chrome';
 import './styles/main.css';
+
+const TIME = {
+  MINUTE_MS: 60 * 1000,
+  COUNTDOWN_UPDATE_INTERVAL: 1000,
+} as const;
 
 // DOM elements
 const currentSiteDiv = document.getElementById('currentSite') as HTMLDivElement;
@@ -31,6 +45,50 @@ let currentSiteUrl = '';
 // Interval for updating countdown timers
 let countdownInterval: number | null = null;
 
+// Helper: Pluralize words
+function pluralize(count: number, singular: string, plural?: string): string {
+  return count === 1 ? singular : (plural || singular + 's');
+}
+
+// Helper: Update rules and reload lists
+async function updateBlockingRules(): Promise<void> {
+  chrome.runtime.sendMessage({ action: 'updateRules' });
+  await Promise.all([loadWebsites(), loadWhitelistedSites()]);
+}
+
+// Helper: Update status text based on enabled state
+function updateStatusText(isEnabled: boolean): void {
+  statusText.textContent = isEnabled
+    ? 'Extension Enabled'
+    : 'Extension Disabled';
+}
+
+// Helper: Delete site from temp whitelist
+async function deleteFromTempWhitelist(site: string): Promise<void> {
+  const tempWhitelist = await _getTempList();
+  if (tempWhitelist[site]) {
+    delete tempWhitelist[site];
+    await setInChromeStorage(TEMP_WHITELIST_KEY, tempWhitelist, 'local');
+  }
+}
+
+// Helper: Create list item element
+function createListItem(
+  baseClass: string,
+  contentHtml: string,
+  buttonText: string,
+  buttonClass: string,
+  site: string
+): HTMLLIElement {
+  const li = document.createElement('li');
+  li.className = baseClass;
+  li.innerHTML = `
+    ${contentHtml}
+    <button class="${buttonClass}" data-site="${site}">${buttonText}</button>
+  `;
+  return li;
+}
+
 // Format time remaining (in minutes)
 function formatTimeRemaining(expirationTime: number): string {
   const now = Date.now();
@@ -40,17 +98,17 @@ function formatTimeRemaining(expirationTime: number): string {
     return 'Expiring soon...';
   }
 
-  const minutes = Math.ceil(remaining / (60 * 1000));
+  const minutes = Math.ceil(remaining / TIME.MINUTE_MS);
 
   if (minutes < 60) {
-    return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    return `${minutes} ${pluralize(minutes, 'minute')}`;
   }
 
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
 
   if (mins === 0) {
-    return `${hours} hour${hours !== 1 ? 's' : ''}`;
+    return `${hours} ${pluralize(hours, 'hour')}`;
   }
 
   return `${hours}h ${mins}m`;
@@ -58,8 +116,7 @@ function formatTimeRemaining(expirationTime: number): string {
 
 // Load and display whitelisted sites
 async function loadWhitelistedSites(): Promise<void> {
-  const result = await chrome.storage.local.get('tempWhitelist');
-  const tempWhitelist: { [site: string]: number } = result.tempWhitelist || {};
+  const tempWhitelist = await _getTempList();
 
   const now = Date.now();
   const activeWhitelist = Object.entries(tempWhitelist).filter(
@@ -78,22 +135,24 @@ async function loadWhitelistedSites(): Promise<void> {
   whitelistCountSpan.textContent = activeWhitelist.length.toString();
 
   activeWhitelist.forEach(([site, expiration]) => {
-    const li = document.createElement('li');
-    li.className =
-      'flex items-center justify-between p-3 bg-green-900 bg-opacity-30 rounded-lg border border-green-700';
-    li.innerHTML = `
+    const contentHtml = `
       <div class="flex-1">
         <div class="text-sm text-gray-200 font-medium">${site}</div>
         <div class="text-xs text-green-400 mt-1 countdown-timer" data-expiration="${expiration}">
           Will be blocked again in ${formatTimeRemaining(expiration)}
         </div>
       </div>
-      <button class="px-3 py-1 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700 transition-colors block-now-btn shadow-sm" data-site="${site}">Block Now</button>
     `;
+    const li = createListItem(
+      'flex items-center justify-between p-3 bg-green-900 bg-opacity-30 rounded-lg border border-green-700',
+      contentHtml,
+      'Block Now',
+      'px-3 py-1 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700 transition-colors block-now-btn shadow-sm',
+      site
+    );
     whitelistList.appendChild(li);
   });
 
-  // Add event listeners for "Block Now" buttons
   document.querySelectorAll('.block-now-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const site = (btn as HTMLButtonElement).dataset.site;
@@ -111,7 +170,6 @@ function updateCountdowns(): void {
     const timeText = formatTimeRemaining(expiration);
     timer.textContent = `Will be blocked again in ${timeText}`;
 
-    // If expired, reload the lists
     if (expiration <= Date.now()) {
       loadWebsites();
       loadWhitelistedSites();
@@ -121,38 +179,25 @@ function updateCountdowns(): void {
 
 // Remove site from whitelist (block it again immediately)
 async function removeFromWhitelist(site: string): Promise<void> {
-  const result = await chrome.storage.local.get('tempWhitelist');
-  const tempWhitelist: { [site: string]: number } = result.tempWhitelist || {};
-
+  const tempWhitelist = await _getTempList();
   delete tempWhitelist[site];
-  await chrome.storage.local.set({ tempWhitelist });
+  await setInChromeStorage(TEMP_WHITELIST_KEY, tempWhitelist, 'local');
 
-  // Notify background script to update rules
-  chrome.runtime.sendMessage({ action: 'updateRules' });
-
-  // Reload both lists
-  loadWebsites();
-  loadWhitelistedSites();
+  await updateBlockingRules();
 }
 
 async function loadWebsites(): Promise<void> {
-  const data = (await chrome.storage.sync.get([
-    'blockedSites',
-    'isEnabled',
-  ])) as StorageData & { isEnabled?: boolean };
+  const data = await getMultipleFromChromeStorage<
+    StorageData & { isEnabled?: boolean }
+  >(['blockedSites', 'isEnabled'], 'sync');
   const { blockedSites = [], isEnabled = true } = data;
 
   enableToggle.checked = isEnabled;
-  statusText.textContent = isEnabled
-    ? 'Extension Enabled'
-    : 'Extension Disabled';
+  updateStatusText(isEnabled);
 
-  // Get whitelisted sites to filter them out
-  const result = await chrome.storage.local.get('tempWhitelist');
-  const tempWhitelist: { [site: string]: number } = result.tempWhitelist || {};
+  const tempWhitelist = await _getTempList();
   const now = Date.now();
 
-  // Filter out sites that are currently whitelisted
   const activelyBlockedSites = blockedSites.filter(site => {
     const expiration = tempWhitelist[site];
     return !expiration || expiration <= now;
@@ -160,23 +205,26 @@ async function loadWebsites(): Promise<void> {
 
   websiteList.innerHTML = '';
   countSpan.textContent = activelyBlockedSites.length.toString();
-
-  activelyBlockedSites.forEach(site => {
-    const li = document.createElement('li');
-    li.className =
-      'flex items-center justify-between p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors border border-gray-700';
-    li.innerHTML = `
-      <span class="text-sm text-gray-200 font-medium">${site}</span>
-      <button class="px-3 py-1 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700 transition-colors remove-btn shadow-sm" data-site="${site}">Remove</button>
-    `;
-    websiteList.appendChild(li);
-  });
-
+  _createBlockedListUI(activelyBlockedSites);
   document.querySelectorAll('.remove-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const site = (btn as HTMLButtonElement).dataset.site;
       if (site) removeSite(site);
     });
+  });
+}
+
+function _createBlockedListUI(sites: string[]) {
+  sites.forEach(site => {
+    const contentHtml = `<span class="text-sm text-gray-200 font-medium">${site}</span>`;
+    const li = createListItem(
+      'flex items-center justify-between p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors border border-gray-700',
+      contentHtml,
+      'Remove',
+      'px-3 py-1 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700 transition-colors remove-btn shadow-sm',
+      site
+    );
+    websiteList.appendChild(li);
   });
 }
 
@@ -192,23 +240,8 @@ async function getCurrentSite(): Promise<void> {
       currentSiteUrl = url.hostname.replace(/^www\./, '');
       currentSiteDiv.textContent = currentSiteUrl;
 
-      // Check if already blocked
-      const data = (await chrome.storage.sync.get(
-        'blockedSites'
-      )) as StorageData;
-      const blockedSites = data.blockedSites || [];
-
-      if (blockedSites.includes(currentSiteUrl)) {
-        addCurrentBtn.textContent = 'Already Blocked';
-        addCurrentBtn.disabled = true;
-        addCurrentBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-        addCurrentBtn.classList.add('bg-gray-600');
-      } else {
-        addCurrentBtn.textContent = 'Add Current Site to Block List';
-        addCurrentBtn.disabled = false;
-        addCurrentBtn.classList.remove('bg-gray-600');
-        addCurrentBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
-      }
+      const blockedSites = await _getBlockedSites();
+      _changeAddCurrentDisplay(blockedSites.includes(currentSiteUrl));
     } else {
       currentSiteDiv.textContent = 'No site available';
       addCurrentBtn.disabled = true;
@@ -219,94 +252,80 @@ async function getCurrentSite(): Promise<void> {
   }
 }
 
-// Add current website
+function _changeAddCurrentDisplay(alreadyBlocked: boolean): void {
+  if (alreadyBlocked) {
+    addCurrentBtn.textContent = 'Already Blocked';
+    addCurrentBtn.disabled = true;
+    addCurrentBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+    addCurrentBtn.classList.add('bg-gray-600');
+  } else {
+    addCurrentBtn.textContent = 'Add Current Site to Block List';
+    addCurrentBtn.disabled = false;
+    addCurrentBtn.classList.remove('bg-gray-600');
+    addCurrentBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+  }
+}
+
+async function _getBlockedSites() {
+  return (
+    (await getFromChromeStorage<string[]>(BLOCKED_SITES_KEY, 'sync')) || []
+  );
+}
+
+async function _getTempList() {
+  return (
+    (await getFromChromeStorage<{ [site: string]: number }>(
+      TEMP_WHITELIST_KEY,
+      'local'
+    )) || {}
+  );
+}
+
 async function addCurrentWebsite(): Promise<void> {
   if (!currentSiteUrl) {
     alert('No site to add');
     return;
   }
 
-  const data = (await chrome.storage.sync.get('blockedSites')) as StorageData;
-  const blockedSites = data.blockedSites || [];
-
+  const blockedSites = await _getBlockedSites();
   if (blockedSites.includes(currentSiteUrl)) {
     alert('This website is already blocked');
     return;
   }
 
   blockedSites.push(currentSiteUrl);
-  await chrome.storage.sync.set({ blockedSites });
+  await setInChromeStorage(BLOCKED_SITES_KEY, blockedSites, 'sync');
 
-  // Remove from whitelist if it's there
-  const result = await chrome.storage.local.get('tempWhitelist');
-  const tempWhitelist: { [site: string]: number } = result.tempWhitelist || {};
-  if (tempWhitelist[currentSiteUrl]) {
-    delete tempWhitelist[currentSiteUrl];
-    await chrome.storage.local.set({ tempWhitelist });
-  }
+  await deleteFromTempWhitelist(currentSiteUrl);
 
-  chrome.runtime.sendMessage({ action: 'updateRules' });
-
-  // Update button state
-  addCurrentBtn.textContent = 'Already Blocked';
-  addCurrentBtn.disabled = true;
-  addCurrentBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-  addCurrentBtn.classList.add('bg-gray-600');
-
-  loadWebsites();
-  loadWhitelistedSites();
+  _changeAddCurrentDisplay(true);
+  await updateBlockingRules();
 }
 
 // Remove a website
 async function removeSite(site: string): Promise<void> {
-  const data = (await chrome.storage.sync.get('blockedSites')) as StorageData;
-  const blockedSites = data.blockedSites || [];
+  const blockedSites = await _getBlockedSites();
   const updatedSites = blockedSites.filter(s => s !== site);
 
-  await chrome.storage.sync.set({ blockedSites: updatedSites });
-
-  // Also remove from whitelist if it's there
-  const result = await chrome.storage.local.get('tempWhitelist');
-  const tempWhitelist: { [site: string]: number } = result.tempWhitelist || {};
-  if (tempWhitelist[site]) {
-    delete tempWhitelist[site];
-    await chrome.storage.local.set({ tempWhitelist });
-  }
-
-  // Notify background script
-  chrome.runtime.sendMessage({ action: 'updateRules' });
-
-  loadWebsites();
-  loadWhitelistedSites();
+  await setInChromeStorage(BLOCKED_SITES_KEY, updatedSites, 'sync');
+  await deleteFromTempWhitelist(site);
+  await updateBlockingRules();
 }
 
-// Reset to default list
 async function resetToDefault(): Promise<void> {
   if (confirm('Reset to default blocked websites?')) {
-    await chrome.storage.sync.set({
-      blockedSites: DEFAULT_BLOCKED_SITES,
-      isEnabled: true,
-    });
-
-    // Clear whitelist
-    await chrome.storage.local.set({ tempWhitelist: {} });
-
-    chrome.runtime.sendMessage({ action: 'updateRules' });
-
-    loadWebsites();
-    loadWhitelistedSites();
+    await setInChromeStorage(BLOCKED_SITES_KEY, DEFAULT_BLOCKED_SITES, 'sync');
+    await setInChromeStorage('isEnabled', true, 'sync');
+    await setInChromeStorage(TEMP_WHITELIST_KEY, {}, 'local');
+    await updateBlockingRules();
   }
 }
 
 // Toggle extension on/off
 async function toggleExtension(): Promise<void> {
   const isEnabled = enableToggle.checked;
-  await chrome.storage.sync.set({ isEnabled });
-
-  statusText.textContent = isEnabled
-    ? 'Extension Enabled'
-    : 'Extension Disabled';
-
+  await setInChromeStorage('isEnabled', isEnabled, 'sync');
+  updateStatusText(isEnabled);
   chrome.runtime.sendMessage({ action: 'updateRules' });
 }
 
