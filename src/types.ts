@@ -9,6 +9,13 @@ export interface BlockStats {
   todayCount: number;
 }
 
+export interface DailySiteVisits {
+  [site: string]: {
+    count: number;
+    date: string; // Store date as string (e.g., "2025-11-06")
+  };
+}
+
 export interface TempWhitelist {
   [site: string]: number; // site name -> expiration timestamp
 }

@@ -108,6 +108,8 @@ let clickCount = 0;
 let currentStage = 0;
 let canClick = true;
 let clickCooldown = 800; // Start with 800ms cooldown
+let isFlashlightActive = false;
+let buttonFound = false;
 
 // Progressive messages for each click
 const shameMessages = [
@@ -205,136 +207,203 @@ function showNextStage(stageNumber: number): void {
   }
 }
 
+function activateFlashlight(): void {
+  const flashlightOverlay = document.getElementById('flashlightOverlay');
+  const stage2 = document.getElementById('stage2');
+
+  if (!flashlightOverlay || !stage2) return;
+
+  isFlashlightActive = true;
+  buttonFound = false;
+
+  // Show flashlight overlay and dark mode
+  flashlightOverlay.classList.remove('hidden');
+  stage2.classList.add('dark-mode');
+
+  // Track mouse movement for flashlight effect
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isFlashlightActive) return;
+
+    const x = (e.clientX / window.innerWidth) * 100;
+    const y = (e.clientY / window.innerHeight) * 100;
+
+    flashlightOverlay.style.setProperty('--mouse-x', `${x}%`);
+    flashlightOverlay.style.setProperty('--mouse-y', `${y}%`);
+  };
+
+  document.addEventListener('mousemove', handleMouseMove);
+
+  // Store the handler so we can remove it later
+  (flashlightOverlay as any).mouseMoveHandler = handleMouseMove;
+}
+
+function deactivateFlashlight(): void {
+  const flashlightOverlay = document.getElementById('flashlightOverlay');
+  const stage2 = document.getElementById('stage2');
+
+  if (!flashlightOverlay || !stage2) return;
+
+  isFlashlightActive = false;
+
+  // Hide flashlight overlay
+  flashlightOverlay.classList.add('hidden');
+  stage2.classList.remove('dark-mode');
+
+  // Remove mouse move listener
+  const handler = (flashlightOverlay as any).mouseMoveHandler;
+  if (handler) {
+    document.removeEventListener('mousemove', handler);
+  }
+}
+
+function moveButtonRandomly(): void {
+  const shameButtonMoving = document.getElementById('shameButtonMoving') as HTMLButtonElement;
+  const buttonContainer = document.getElementById('buttonContainer');
+  const initialView = document.getElementById('initialView');
+  const flashlightMode = document.getElementById('flashlightMode');
+
+  if (!shameButtonMoving || !buttonContainer || !initialView || !flashlightMode) return;
+
+  // First, show flashlight mode so the button becomes visible for measurement
+  initialView.classList.add('hidden');
+  flashlightMode.classList.remove('hidden');
+
+  // Reset button styling for measurement
+  shameButtonMoving.style.transition = 'none';
+  shameButtonMoving.style.transform = 'none';
+  shameButtonMoving.style.left = '0px';
+  shameButtonMoving.style.top = '0px';
+  shameButtonMoving.style.visibility = 'visible';
+  shameButtonMoving.style.display = 'block';
+
+  // Force a reflow to ensure the button is rendered
+  void shameButtonMoving.offsetHeight;
+
+  // Now get the actual button dimensions
+  const buttonRect = shameButtonMoving.getBoundingClientRect();
+  const buttonWidth = buttonRect.width;
+  const buttonHeight = buttonRect.height;
+
+  console.log('Button dimensions:', buttonWidth, 'x', buttonHeight);
+
+  // Get viewport dimensions
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  console.log('Viewport dimensions:', viewportWidth, 'x', viewportHeight);
+
+  // Minimum margin from edges (16px as requested)
+  const margin = 16;
+
+  // Calculate safe bounds for positioning
+  // The button will be positioned absolutely from its top-left corner
+  const minX = margin;
+  const maxX = viewportWidth - buttonWidth - margin;
+  const minY = margin;
+  const maxY = viewportHeight - buttonHeight - margin;
+
+  console.log('Safe bounds - X:', minX, 'to', maxX, '| Y:', minY, 'to', maxY);
+
+  // Generate random position within safe bounds
+  let randomX: number;
+  let randomY: number;
+
+  if (maxX <= minX) {
+    // Not enough horizontal space, center it
+    randomX = (viewportWidth - buttonWidth) / 2;
+    console.warn('Not enough horizontal space, centering button');
+  } else {
+    randomX = minX + Math.random() * (maxX - minX);
+  }
+
+  if (maxY <= minY) {
+    // Not enough vertical space, center it
+    randomY = (viewportHeight - buttonHeight) / 2;
+    console.warn('Not enough vertical space, centering button');
+  } else {
+    randomY = minY + Math.random() * (maxY - minY);
+  }
+
+  console.log('Placing button at:', randomX, ',', randomY);
+
+  // Verify the button will be within bounds
+  const willOverflowRight = randomX + buttonWidth > viewportWidth - margin;
+  const willOverflowBottom = randomY + buttonHeight > viewportHeight - margin;
+  const willOverflowLeft = randomX < margin;
+  const willOverflowTop = randomY < margin;
+
+  if (willOverflowRight || willOverflowBottom || willOverflowLeft || willOverflowTop) {
+    console.error('Button will overflow!', {
+      right: willOverflowRight,
+      bottom: willOverflowBottom,
+      left: willOverflowLeft,
+      top: willOverflowTop
+    });
+  }
+
+  // Apply the final position instantly (no transition)
+  shameButtonMoving.style.left = `${randomX}px`;
+  shameButtonMoving.style.top = `${randomY}px`;
+  shameButtonMoving.style.transform = 'none';
+
+  // Reset button found state when moving
+  buttonFound = false;
+
+  // Activate flashlight effect
+  activateFlashlight();
+}
+
 function handleShameClick(): void {
   if (!canClick || clickCount >= 10) return;
 
   canClick = false;
   clickCount++;
 
-  const shameMeterFill = document.getElementById('shameMeterFill');
   const clickCountDisplay = document.getElementById('clickCount');
-  const shameButton = document.getElementById(
-    'shameButton'
-  ) as HTMLButtonElement;
-  const stage2Container = document.getElementById('stage2');
-  const shameEmoji = document.getElementById('shameEmoji');
-  const shameTitle = document.getElementById('shameTitle');
-  const shameSubtext = document.getElementById('shameSubtext');
-  const cooldownBar = document.getElementById('cooldownBar');
-  const body = document.body;
+  const shameButton = document.getElementById('shameButton') as HTMLButtonElement;
+  const shameButtonMoving = document.getElementById('shameButtonMoving') as HTMLButtonElement;
 
-  // Update click count
+  // Update click count display
   if (clickCountDisplay) {
     clickCountDisplay.textContent = clickCount.toString();
   }
 
-  // Update shame meter with animation
-  if (shameMeterFill) {
-    const percentage = (clickCount / 10) * 100;
-    shameMeterFill.style.width = percentage + '%';
-  }
-
-  // Update messages, emoji, and styling
+  // Update button text with messages
   const currentMessage = shameMessages[clickCount - 1];
-  if (shameButton && currentMessage) {
-    shameButton.textContent = currentMessage.text;
-    // Flash animation to draw attention to text change
-    shameButton.classList.add('button-text-change');
-    setTimeout(() => {
-      shameButton.classList.remove('button-text-change');
-    }, 600);
+  const activeButton = isFlashlightActive ? shameButtonMoving : shameButton;
+
+  if (activeButton && currentMessage) {
+    activeButton.textContent = currentMessage.text;
   }
 
-  if (shameEmoji && currentMessage) {
-    shameEmoji.textContent = currentMessage.emoji;
-    shameEmoji.style.transform = `scale(${currentMessage.scale})`;
-  }
-
-  // Update title and subtext with increasing urgency
-  if (shameTitle && clickCount > 3) {
-    const intensity = Math.floor(clickCount / 3);
-    if (intensity === 2) {
-      shameTitle.textContent = 'Stop. Just Stop.';
-    } else if (intensity >= 3) {
-      shameTitle.textContent = "You're Really Doing This?";
-    }
-  }
-
-  if (shameSubtext) {
-    if (clickCount === 5) {
-      shameSubtext.textContent = 'Halfway there... halfway to regret.';
-    } else if (clickCount === 8) {
-      shameSubtext.textContent = 'Almost done throwing away your dignity.';
-    } else if (clickCount === 9) {
-      shameSubtext.textContent = 'One. More. Click.';
-      shameSubtext.classList.add('text-red-400', 'font-bold');
-    }
-  }
-
-  // Escalating screen shake
-  if (stage2Container) {
-    const shakeIntensity = Math.min(clickCount, 5);
-    stage2Container.classList.add(`screen-shake-${shakeIntensity}`);
-    setTimeout(() => {
-      stage2Container.classList.remove(`screen-shake-${shakeIntensity}`);
-    }, 500);
-  }
-
-  if (body) {
-    const redIntensity = Math.floor((clickCount / 10) * 20); // Max 20% red tint
-    body.style.backgroundColor = `rgb(${255}, ${255 - redIntensity}, ${255 - redIntensity})`;
-  }
-
-  if (shameButton) {
-    shameButton.classList.add('shake-animation');
-    shameButton.disabled = true;
-    setTimeout(() => {
-      shameButton.classList.remove('shake-animation');
-    }, 500);
-  }
-
-  // Add pulse to meter fill
-  if (shameMeterFill) {
-    shameMeterFill.classList.add('pulse-animation');
-    setTimeout(() => {
-      shameMeterFill.classList.remove('pulse-animation');
-    }, 600);
-  }
-
-  // Show and animate cooldown bar
-  if (cooldownBar) {
-    cooldownBar.style.width = '100%';
-    cooldownBar.style.transition = 'none';
-    setTimeout(() => {
-      cooldownBar.style.transition = `width ${clickCooldown}ms linear`;
-      cooldownBar.style.width = '0%';
-    }, 50);
+  // Disable button temporarily
+  if (activeButton) {
+    activeButton.disabled = true;
   }
 
   // Progress to stage 3 after 10 clicks
   if (clickCount >= 10) {
+    // Deactivate flashlight on final click
+    if (isFlashlightActive) {
+      deactivateFlashlight();
+    }
+
     // Keep button disabled after 10th click
-    if (shameButton) {
-      shameButton.disabled = true;
+    if (activeButton) {
+      activeButton.disabled = true;
     }
     setTimeout(() => {
       showStage(3);
-      // Reset background
-      if (body) {
-        body.style.backgroundColor = '';
-      }
-    }, 2000); // Give user time to see the final shame message
+    }, 1000);
   } else {
-    // Increasing cooldown with each click (makes it more painful)
+    // Move button to random position and keep searching
     setTimeout(() => {
+      moveButtonRandomly();
       canClick = true;
-      if (shameButton) {
-        shameButton.disabled = false;
+      if (shameButtonMoving) {
+        shameButtonMoving.disabled = false;
       }
-    }, clickCooldown);
-
-    // Increase cooldown for next click
-    clickCooldown = Math.min(clickCooldown + 200, 2000);
+    }, 300); // Brief delay before next round
   }
 }
 
@@ -430,10 +499,30 @@ document.addEventListener('DOMContentLoaded', () => {
     proceedBtn.addEventListener('click', startShameRitual);
   }
 
-  // Shame button
+  // Initial shame button (for first click)
   const shameButton = document.getElementById('shameButton');
   if (shameButton) {
     shameButton.addEventListener('click', handleShameClick);
+  }
+
+  // Moving shame button (for flashlight mode)
+  const shameButtonMoving = document.getElementById('shameButtonMoving');
+  if (shameButtonMoving) {
+    shameButtonMoving.addEventListener('click', handleShameClick);
+
+    // Add hover detection for flashlight mode
+    shameButtonMoving.addEventListener('mouseenter', () => {
+      if (isFlashlightActive && !buttonFound) {
+        buttonFound = true;
+        // Give visual feedback that button is found (temporarily brighten)
+        shameButtonMoving.style.filter = 'brightness(1.3)';
+        setTimeout(() => {
+          if (shameButtonMoving) {
+            shameButtonMoving.style.filter = '';
+          }
+        }, 200);
+      }
+    });
   }
 
   // Final checkbox
