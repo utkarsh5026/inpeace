@@ -14,7 +14,7 @@ interface BlockStats {
   todayCount: number;
 }
 
-// Update block statistics
+// Update block statistics (stored for potential future use)
 async function updateStats(): Promise<void> {
   const today = new Date().toDateString();
   const result = await chrome.storage.local.get('blockStats');
@@ -36,17 +36,6 @@ async function updateStats(): Promise<void> {
 
   // Save updated stats
   await chrome.storage.local.set({ blockStats });
-
-  // Display stats
-  const blocksTodayElement = document.getElementById('blocksToday');
-  const totalBlocksElement = document.getElementById('totalBlocks');
-
-  if (blocksTodayElement) {
-    blocksTodayElement.textContent = blockStats.todayCount.toString();
-  }
-  if (totalBlocksElement) {
-    totalBlocksElement.textContent = blockStats.total.toString();
-  }
 }
 
 updateStats();
