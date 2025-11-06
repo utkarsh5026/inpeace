@@ -70,6 +70,21 @@ export async function loadWhitelistedSites(
     return;
   }
 
+  renderWhiteList(
+    whitelistSection,
+    whitelistCountSpan,
+    whitelistList,
+    activeWhitelist
+  );
+  addBlockNowListener(onBlockNow);
+}
+
+function renderWhiteList(
+  whitelistSection: HTMLDivElement,
+  whitelistCountSpan: HTMLSpanElement,
+  whitelistList: HTMLUListElement,
+  activeWhitelist: [string, number][]
+): void {
   whitelistSection.classList.remove('hidden');
   whitelistCountSpan.textContent = activeWhitelist.length.toString();
 
@@ -91,7 +106,9 @@ export async function loadWhitelistedSites(
     );
     whitelistList.appendChild(li);
   });
+}
 
+function addBlockNowListener(onBlockNow: (site: string) => void): void {
   document.querySelectorAll('.block-now-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const site = (btn as HTMLButtonElement).dataset.site;
