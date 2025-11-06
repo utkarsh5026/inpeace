@@ -41,6 +41,7 @@ module.exports = {
       patterns: [
         { from: 'public/manifest.json', to: 'manifest.json' },
         { from: 'public/popup.html', to: 'popup.html' },
+        { from: 'public/popup.css', to: 'popup.css' },
         { from: 'public/blocked.html', to: 'blocked.html' },
         { from: 'public/blocked.css', to: 'blocked.css' },
         { from: 'public/icons/icon16.png', to: 'icons/icon16.png' },
