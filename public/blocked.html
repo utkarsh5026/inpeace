@@ -131,6 +131,33 @@
         animation: intensePulse 2s ease-in-out infinite;
       }
 
+      /* Stage 3 Animation */
+      @keyframes containerDrop {
+        0% {
+          transform: translateY(-100vh);
+          opacity: 0;
+        }
+        70% {
+          transform: translateY(20px);
+        }
+        85% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      #stage3:not(.hidden) {
+        transform: translateY(-100vh);
+        opacity: 0;
+      }
+
+      #stage3.stage3-container {
+        animation: containerDrop 4s ease-out forwards;
+      }
+
       .final-checkbox-container {
         animation: glowPulse 3s ease-in-out infinite;
       }
@@ -216,6 +243,33 @@
 
       #shameRitual {
         transition: opacity 0.5s ease-in-out;
+      }
+
+      /* Fade transitions for stages */
+      .stage-fade-out {
+        animation: fadeOut 0.5s ease-out forwards;
+      }
+
+      .stage-fade-in {
+        animation: fadeIn 0.5s ease-in forwards;
+      }
+
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
 
       .hidden {
@@ -315,23 +369,14 @@
 
         <!-- Stage 3: Shameless Message -->
         <div id="stage3" class="hidden">
-          <div class="text-9xl mb-8 fade-in-scale stage3-intense">🤦</div>
-          <h2
-            class="text-6xl font-bold mb-8 fade-in-scale text-red-400"
-            style="animation-delay: 0.3s"
-          >
+          <div class="text-9xl mb-8">🤦</div>
+          <h2 class="text-6xl font-bold mb-8 text-red-400">
             You are shameless
           </h2>
-          <p
-            class="text-3xl opacity-90 fade-in-scale mb-6 font-semibold"
-            style="animation-delay: 0.6s"
-          >
+          <p class="text-3xl opacity-90 mb-6 font-semibold">
             You actually clicked it 10 times...
           </p>
-          <p
-            class="text-xl opacity-70 fade-in-scale italic"
-            style="animation-delay: 0.9s"
-          >
+          <p class="text-xl opacity-70 italic">
             What would your family think?
           </p>
         </div>

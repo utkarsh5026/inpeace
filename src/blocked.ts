@@ -49,15 +49,19 @@ let clickCooldown = 800; // Start with 800ms cooldown
 // Progressive messages for each click
 const shameMessages = [
   { text: 'I Have No Self-Control', emoji: '😞', scale: 1.0 },
-  { text: 'Really? You\'re Going Through With This?', emoji: '😟', scale: 1.1 },
-  { text: 'Think About What You\'re Doing...', emoji: '😥', scale: 1.2 },
+  { text: "Really? You're Going Through With This?", emoji: '😟', scale: 1.1 },
+  { text: "Think About What You're Doing...", emoji: '😥', scale: 1.2 },
   { text: 'This Is Embarrassing', emoji: '😓', scale: 1.3 },
-  { text: 'You Could Be Doing Literally Anything Else', emoji: '😢', scale: 1.4 },
+  {
+    text: 'You Could Be Doing Literally Anything Else',
+    emoji: '😢',
+    scale: 1.4,
+  },
   { text: 'Your Future Self Is Disappointed', emoji: '😭', scale: 1.5 },
   { text: 'Is This Really Worth It?', emoji: '🤦', scale: 1.6 },
   { text: 'You Have No Willpower', emoji: '😤', scale: 1.7 },
   { text: 'This Is Who You Are', emoji: '💔', scale: 1.8 },
-  { text: 'One More Click... That\'s All It Takes', emoji: '😔', scale: 2.0 }
+  { text: "One More Click... That's All It Takes", emoji: '😔', scale: 2.0 },
 ];
 
 // Start at stage 1 immediately when page loads
@@ -66,7 +70,6 @@ function initShameRitual(): void {
 }
 
 function startShameRitual(): void {
-  // Move to stage 2 (click challenge)
   showStage(2);
   clickCount = 0;
   canClick = true;
@@ -74,25 +77,68 @@ function startShameRitual(): void {
 }
 
 function showStage(stageNumber: number): void {
+  const previousStage = currentStage;
   currentStage = stageNumber;
 
-  // Hide all stages
+  // Fade out previous stage if it exists
+  if (previousStage > 0) {
+    const previousStageElement = document.getElementById(
+      `stage${previousStage}`
+    );
+    if (
+      previousStageElement &&
+      !previousStageElement.classList.contains('hidden')
+    ) {
+      previousStageElement.classList.add('stage-fade-out');
+
+      // After fade out completes, hide it and show next stage
+      setTimeout(() => {
+        previousStageElement.classList.add('hidden');
+        previousStageElement.classList.remove('stage-fade-out');
+        showNextStage(stageNumber);
+      }, 500); // Match the fadeOut animation duration
+    } else {
+      showNextStage(stageNumber);
+    }
+  } else {
+    showNextStage(stageNumber);
+  }
+}
+
+function showNextStage(stageNumber: number): void {
+  // Hide all stages first
   for (let i = 1; i <= 4; i++) {
     const stageElement = document.getElementById(`stage${i}`);
-    if (stageElement) {
+    if (stageElement && i !== stageNumber) {
       stageElement.classList.add('hidden');
+      stageElement.classList.remove(
+        'stage-fade-in',
+        'stage-fade-out',
+        'stage3-container'
+      );
     }
   }
 
-  // Show current stage
+  // Show and fade in current stage
   const currentStageElement = document.getElementById(`stage${stageNumber}`);
   if (currentStageElement) {
     currentStageElement.classList.remove('hidden');
+
+    // Special handling for stage 3 animation
+    if (stageNumber === 3) {
+      currentStageElement.classList.add('stage3-container');
+    } else {
+      currentStageElement.classList.add('stage-fade-in');
+      // Remove fade-in class after animation completes
+      setTimeout(() => {
+        currentStageElement.classList.remove('stage-fade-in');
+      }, 500);
+    }
   }
 
   // Auto-progress from stage 3 to stage 4
   if (stageNumber === 3) {
-    setTimeout(() => showStage(4), 2500);
+    setTimeout(() => showStage(4), 4500); // 4s animation + 0.5s buffer
   }
 }
 
@@ -104,7 +150,9 @@ function handleShameClick(): void {
 
   const shameMeterFill = document.getElementById('shameMeterFill');
   const clickCountDisplay = document.getElementById('clickCount');
-  const shameButton = document.getElementById('shameButton') as HTMLButtonElement;
+  const shameButton = document.getElementById(
+    'shameButton'
+  ) as HTMLButtonElement;
   const stage2Container = document.getElementById('stage2');
   const shameEmoji = document.getElementById('shameEmoji');
   const shameTitle = document.getElementById('shameTitle');
@@ -145,7 +193,7 @@ function handleShameClick(): void {
     if (intensity === 2) {
       shameTitle.textContent = 'Stop. Just Stop.';
     } else if (intensity >= 3) {
-      shameTitle.textContent = 'You\'re Really Doing This?';
+      shameTitle.textContent = "You're Really Doing This?";
     }
   }
 
@@ -227,18 +275,28 @@ function handleShameClick(): void {
 
 function handleFinalCheckbox(): void {
   const checkbox = document.getElementById('finalCheckbox') as HTMLInputElement;
-  const proceedBtn = document.getElementById('proceedFinalBtn') as HTMLButtonElement;
+  const proceedBtn = document.getElementById(
+    'proceedFinalBtn'
+  ) as HTMLButtonElement;
 
   if (!checkbox || !proceedBtn) return;
 
   if (checkbox.checked) {
     proceedBtn.disabled = false;
     proceedBtn.classList.remove('bg-gray-600');
-    proceedBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'cursor-pointer');
+    proceedBtn.classList.add(
+      'bg-red-600',
+      'hover:bg-red-700',
+      'cursor-pointer'
+    );
   } else {
     proceedBtn.disabled = true;
     proceedBtn.classList.add('bg-gray-600');
-    proceedBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'cursor-pointer');
+    proceedBtn.classList.remove(
+      'bg-red-600',
+      'hover:bg-red-700',
+      'cursor-pointer'
+    );
   }
 }
 
@@ -246,7 +304,9 @@ function allowAccess(): void {
   // Show dramatic countdown before allowing access
   const countdownOverlay = document.getElementById('countdownOverlay');
   const countdownNumber = document.getElementById('countdownNumber');
-  const proceedFinalBtn = document.getElementById('proceedFinalBtn') as HTMLButtonElement;
+  const proceedFinalBtn = document.getElementById(
+    'proceedFinalBtn'
+  ) as HTMLButtonElement;
 
   if (!countdownOverlay || !countdownNumber) return;
 
@@ -264,7 +324,7 @@ function allowAccess(): void {
       countdownNumber.textContent = count.toString();
       countdownNumber.classList.remove('countdown-number');
       // Force reflow to restart animation
-      void countdownNumber.offsetWidth;
+      countdownNumber.offsetWidth;
       countdownNumber.classList.add('countdown-number');
       count--;
       setTimeout(showCount, 1000);
