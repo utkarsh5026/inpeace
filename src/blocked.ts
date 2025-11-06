@@ -1,17 +1,78 @@
 // Get the blocked site from URL
 const urlParams = new URLSearchParams(window.location.search);
 const site = urlParams.get('site');
-if (site) {
-  const blockedSiteElement = document.getElementById('blockedSite');
-  if (blockedSiteElement) {
-    blockedSiteElement.textContent = site;
-  }
+
+interface DailySiteVisits {
+  [site: string]: {
+    count: number;
+    date: string;
+  };
 }
 
 interface BlockStats {
   total: number;
   lastDate: string;
   todayCount: number;
+}
+
+let todayVisitCount = 0;
+
+// Update per-site daily visit tracking
+async function updateDailySiteVisits(): Promise<void> {
+  if (!site) return;
+
+  const today = new Date().toISOString().split('T')[0]; // Format: "2025-11-06"
+  const result = await chrome.storage.local.get('dailySiteVisits');
+  let dailySiteVisits: DailySiteVisits = result.dailySiteVisits || {};
+
+  // Check if we have data for this site
+  if (!dailySiteVisits[site] || dailySiteVisits[site].date !== today) {
+    // New day or first visit - reset count
+    dailySiteVisits[site] = {
+      count: 1,
+      date: today,
+    };
+    todayVisitCount = 1;
+  } else {
+    // Same day - increment count
+    dailySiteVisits[site].count++;
+    todayVisitCount = dailySiteVisits[site].count;
+  }
+
+  // Save updated stats
+  await chrome.storage.local.set({ dailySiteVisits });
+
+  // Update the display
+  updateVisitCountDisplay();
+}
+
+// Update the visit count display
+function updateVisitCountDisplay(): void {
+  const visitCountElement = document.getElementById('visitCount');
+  const visitPluralElement = document.getElementById('visitPlural');
+
+  if (visitCountElement && todayVisitCount > 0) {
+    visitCountElement.textContent = todayVisitCount.toString();
+
+    // Update singular/plural form
+    if (visitPluralElement) {
+      visitPluralElement.textContent = todayVisitCount === 1 ? '' : 's';
+    }
+
+    // Show the visit message container
+    const visitMessageElement = document.getElementById('visitMessage');
+    if (visitMessageElement) {
+      visitMessageElement.classList.remove('hidden');
+    }
+  }
+}
+
+// Update the blocked site display
+if (site) {
+  const blockedSiteElement = document.getElementById('blockedSite');
+  if (blockedSiteElement) {
+    blockedSiteElement.textContent = site;
+  }
 }
 
 // Update block statistics (stored for potential future use)
@@ -38,6 +99,8 @@ async function updateStats(): Promise<void> {
   await chrome.storage.local.set({ blockStats });
 }
 
+// Initialize tracking
+updateDailySiteVisits();
 updateStats();
 
 // Shame Ritual Logic
