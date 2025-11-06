@@ -1,0 +1,394 @@
+/* Animation Keyframes */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-10px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(10px);
+  }
+}
+
+@keyframes screenShake1 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-2px, 2px);
+  }
+  50% {
+    transform: translate(2px, -2px);
+  }
+  75% {
+    transform: translate(-2px, -2px);
+  }
+}
+
+@keyframes screenShake2 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-3px, 3px);
+  }
+  50% {
+    transform: translate(3px, -3px);
+  }
+  75% {
+    transform: translate(-3px, -3px);
+  }
+}
+
+@keyframes screenShake3 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-4px, 4px);
+  }
+  50% {
+    transform: translate(4px, -4px);
+  }
+  75% {
+    transform: translate(-4px, -4px);
+  }
+}
+
+@keyframes screenShake4 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-5px, 5px);
+  }
+  50% {
+    transform: translate(5px, -5px);
+  }
+  75% {
+    transform: translate(-5px, -5px);
+  }
+}
+
+@keyframes screenShake5 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-6px, 6px) rotate(0.3deg);
+  }
+  20% {
+    transform: translate(6px, -6px) rotate(-0.3deg);
+  }
+  30% {
+    transform: translate(-6px, -6px) rotate(0.3deg);
+  }
+  40% {
+    transform: translate(6px, 6px) rotate(-0.3deg);
+  }
+  50% {
+    transform: translate(-6px, 6px) rotate(0.3deg);
+  }
+  60% {
+    transform: translate(6px, -6px) rotate(-0.3deg);
+  }
+  70% {
+    transform: translate(-6px, -6px) rotate(0.3deg);
+  }
+  80% {
+    transform: translate(6px, 6px) rotate(-0.3deg);
+  }
+  90% {
+    transform: translate(-3px, 3px);
+  }
+}
+
+.screen-shake-1 {
+  animation: screenShake1 0.4s ease-in-out;
+}
+.screen-shake-2 {
+  animation: screenShake2 0.4s ease-in-out;
+}
+.screen-shake-3 {
+  animation: screenShake3 0.4s ease-in-out;
+}
+.screen-shake-4 {
+  animation: screenShake4 0.4s ease-in-out;
+}
+.screen-shake-5 {
+  animation: screenShake5 0.5s ease-in-out;
+}
+
+@keyframes buttonTextFlash {
+  0% {
+    transform: scale(1);
+    color: white;
+  }
+  50% {
+    transform: scale(1.15);
+    color: #fca5a5;
+    text-shadow: 0 0 20px rgba(252, 165, 165, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    color: white;
+  }
+}
+
+.button-text-change {
+  animation: buttonTextFlash 0.6s ease-out;
+}
+
+@keyframes intensePulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    box-shadow:
+      0 0 40px rgba(239, 68, 68, 0.9),
+      0 0 60px rgba(239, 68, 68, 0.6);
+  }
+}
+
+.stage3-intense {
+  animation: intensePulse 2s ease-in-out infinite;
+}
+
+/* Stage 3 Animation */
+@keyframes containerDrop {
+  0% {
+    transform: translateY(-100vh);
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(20px);
+  }
+  85% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+#stage3:not(.hidden) {
+  transform: translateY(-100vh);
+  opacity: 0;
+}
+
+#stage3.stage3-container {
+  animation: containerDrop 4s ease-out forwards;
+}
+
+.final-checkbox-container {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes countdown {
+  0% {
+    opacity: 0;
+    transform: scale(3);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+.countdown-number {
+  animation: countdown 1s ease-out;
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fillShame {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: var(--fill-width);
+  }
+}
+
+.shake-animation {
+  animation: shake 0.5s ease-in-out;
+}
+
+.fade-in-scale {
+  animation: fadeInScale 0.8s ease-out forwards;
+}
+
+.pulse-animation {
+  animation: pulse 0.6s ease-in-out;
+}
+
+.slide-down {
+  animation: slideDown 0.6s ease-out forwards;
+}
+
+.shame-meter-fill {
+  animation: fillShame 0.4s ease-out forwards;
+}
+
+#shameRitual {
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* Fade transitions for stages */
+.stage-fade-out {
+  animation: fadeOut 0.5s ease-out forwards;
+}
+
+.stage-fade-in {
+  animation: fadeIn 0.5s ease-in forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Flashlight effect */
+#flashlightOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    transparent 0%,
+    transparent 80px,
+    rgba(0, 0, 0, 0.98) 150px
+  );
+  pointer-events: none;
+  z-index: 10002;
+}
+
+#stage2.dark-mode {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hide initial view during flashlight mode */
+#stage2.dark-mode #initialView {
+  display: none;
+}
+
+/* Show flashlight mode container */
+#stage2.dark-mode #flashlightMode {
+  display: block !important;
+  width: 100%;
+  height: 100%;
+}
+
+/* Flashlight message positioning */
+#flashlightMessage {
+  z-index: 10001;
+}
+
+/* Button container and button */
+#buttonContainer {
+  z-index: 10000;
+}
+
+/* Keep button visible and clickable */
+#stage2.dark-mode #shameButtonMoving {
+  opacity: 1;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
