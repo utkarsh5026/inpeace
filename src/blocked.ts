@@ -60,8 +60,8 @@ const shameMessages = [
   { text: 'Your Future Self Is Disappointed', emoji: '😭', scale: 1.5 },
   { text: 'Is This Really Worth It?', emoji: '🤦', scale: 1.6 },
   { text: 'You Have No Willpower', emoji: '😤', scale: 1.7 },
-  { text: 'This Is Who You Are', emoji: '💔', scale: 1.8 },
-  { text: "One More Click... That's All It Takes", emoji: '😔', scale: 2.0 },
+  { text: "One More Click... That's All It Takes", emoji: '😔', scale: 1.8 },
+  { text: 'Congratulations. You Have Zero Self-Control.', emoji: '💔', scale: 2.0 },
 ];
 
 // Start at stage 1 immediately when page loads
@@ -248,26 +248,30 @@ function handleShameClick(): void {
     }, 50);
   }
 
-  // Increasing cooldown with each click (makes it more painful)
-  setTimeout(() => {
-    canClick = true;
-    if (shameButton) {
-      shameButton.disabled = false;
-    }
-  }, clickCooldown);
-
-  // Increase cooldown for next click
-  clickCooldown = Math.min(clickCooldown + 200, 2000);
-
   // Progress to stage 3 after 10 clicks
   if (clickCount >= 10) {
+    // Keep button disabled after 10th click
+    if (shameButton) {
+      shameButton.disabled = true;
+    }
     setTimeout(() => {
       showStage(3);
       // Reset background
       if (body) {
         body.style.backgroundColor = '';
       }
-    }, clickCooldown + 400);
+    }, 2000); // Give user time to see the final shame message
+  } else {
+    // Increasing cooldown with each click (makes it more painful)
+    setTimeout(() => {
+      canClick = true;
+      if (shameButton) {
+        shameButton.disabled = false;
+      }
+    }, clickCooldown);
+
+    // Increase cooldown for next click
+    clickCooldown = Math.min(clickCooldown + 200, 2000);
   }
 }
 
