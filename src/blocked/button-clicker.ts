@@ -15,6 +15,19 @@ type ButtonConstraints = {
   maxY: number;
 };
 
+/**
+ * Manages an interactive "shame button" challenge on blocked pages.
+ *
+ * Creates a progressively difficult interaction where users must click a button
+ * multiple times to proceed. The button moves randomly, uses a flashlight effect
+ * to obscure visibility, and employs a countdown timer that resets progress.
+ *
+ * Flow:
+ * 1. User clicks the shame button
+ * 2. Button moves to a random position with flashlight effect
+ * 3. Timer counts down - if it expires, click count decreases
+ * 4. After MAX_CLICKS successful clicks, the stage is complete
+ */
 export class ShameButton {
   private clickCount: number = 0;
   private canClick: boolean = true;
@@ -30,6 +43,21 @@ export class ShameButton {
     this.onStageComplete = onStageComplete;
   }
 
+  /**
+   * Handles click events on the shame button.
+   *
+   * Prevents clicking if:
+   * - The button is disabled (canClick = false)
+   * - Maximum clicks have been reached
+   *
+   * On valid click:
+   * 1. Clears the active timer
+   * 2. Increments click count
+   * 3. Updates UI displays
+   * 4. Either completes the stage or moves the button to continue
+   *
+   * @private
+   */
   private handleShameClick(): void {
     if (!this.canClick || this.clickCount >= MAX_CLICKS) return;
     this.timer.clear();
@@ -51,6 +79,16 @@ export class ShameButton {
     else this.restartShaming(buttonMoving);
   }
 
+  /**
+   * Restarts the shame challenge after a brief delay.
+   *
+   * Re-enables clicking, moves the button to a new random position,
+   * and starts a new countdown timer. The delay creates a brief pause
+   * after each click for visual feedback.
+   *
+   * @param buttonMoving - The moving button element to re-enable
+   * @private
+   */
   private restartShaming(buttonMoving: HTMLButtonElement): void {
     setTimeout(() => {
       this.moveButtonRandomly();
@@ -61,6 +99,15 @@ export class ShameButton {
     }, 300);
   }
 
+  /**
+   * Handles the completion of the shame button challenge.
+   *
+   * Called when the user reaches MAX_CLICKS. Deactivates the flashlight,
+   * clears the timer, disables the button, and invokes the stage completion callback.
+   *
+   * @param activeButton - The currently active button element to disable
+   * @private
+   */
   private userIsShameless(activeButton: HTMLButtonElement | null): void {
     if (this.flashLight.active) this.flashLight.deactivate();
     this.timer.clear();
@@ -70,6 +117,15 @@ export class ShameButton {
     return;
   }
 
+  /**
+   * Updates the visual state of the clicked button.
+   *
+   * Changes the button text to the shame message and disables it temporarily
+   * to provide visual feedback and prevent rapid clicking.
+   *
+   * @param activeButton - The button element that was just clicked
+   * @private
+   */
   private updateActiveButtonDisplay(activeButton: HTMLButtonElement) {
     if (activeButton) {
       activeButton.textContent = SHAME_MESSAGE;
@@ -80,6 +136,17 @@ export class ShameButton {
     }
   }
 
+  /**
+   * Handles timer expiration events.
+   *
+   * When the countdown timer reaches zero:
+   * - If click count is 0, restarts the timer (initial state)
+   * - If click count > 0, decrements it (penalizes slow clicking)
+   * - Updates displays, changes button message, and moves button to new position
+   * - Restarts the timer for the next cycle
+   *
+   * @private
+   */
   private handleTimerExpiry(): void {
     if (this.clickCount == 0) {
       this.timer.start(this.handleTimerExpiry.bind(this));
@@ -94,6 +161,11 @@ export class ShameButton {
     this.timer.start(this.handleTimerExpiry.bind(this));
   }
 
+  /**
+   * Updates the DOM element displaying the current click count.
+   * Expects an element with ID 'clickCount' to exist in the DOM.
+   * @private
+   */
   private updateClickCountDisplay(): void {
     const clickCountDisplay = document.getElementById('clickCount');
     if (clickCountDisplay) {
@@ -101,6 +173,14 @@ export class ShameButton {
     }
   }
 
+  /**
+   * Updates the moving button's text based on current click count.
+   *
+   * Shows "SHAME" when the count is positive (user has made progress).
+   * Shows "I Have No Self-Control" when count reaches zero (reset to initial state).
+   *
+   * @private
+   */
   private addMessageToButton(): void {
     const shameButtonMoving = document.getElementById(
       SHAME_BUTTON_MOVING
@@ -116,6 +196,16 @@ export class ShameButton {
     }
   }
 
+  /**
+   * Moves the shame button to a random position on the screen.
+   *
+   * Transitions from the initial static view to flashlight mode, calculates
+   * a random position that keeps the button within viewport bounds and
+   * below the flashlight message, then positions the button accordingly.
+   * Resets the button discovery state and activates the flashlight effect.
+   *
+   * @private
+   */
   private moveButtonRandomly(): void {
     const shameButtonMoving = document.getElementById(
       'shameButtonMoving'
@@ -167,6 +257,15 @@ export class ShameButton {
     });
   }
 
+  /**
+   * Calculates the bottom position of the flashlight message element.
+   *
+   * Used to ensure the button doesn't overlap with the instruction message
+   * at the top of the screen. Includes a 20px buffer below the message.
+   *
+   * @returns The Y coordinate (in pixels) below which the button can be positioned
+   * @private
+   */
   private getFlashLightMessageBottom(): number {
     const flashlightMessage = document.getElementById('flashlightMessage');
     let messageBottom = 0;
@@ -178,6 +277,15 @@ export class ShameButton {
     return messageBottom;
   }
 
+  /**
+   * Resets the button's inline styles to prepare for repositioning.
+   *
+   * Removes any transitions, transforms, and positioning from previous states
+   * to ensure clean repositioning. Makes the button visible and displayed.
+   *
+   * @param button - The button element to reset
+   * @private
+   */
   private resetButtonStyle(button: HTMLButtonElement): void {
     button.style.transition = 'none';
     button.style.transform = 'none';
@@ -187,6 +295,21 @@ export class ShameButton {
     button.style.display = 'block';
   }
 
+  /**
+   * Calculates the safe positioning boundaries for the button.
+   *
+   * Determines the minimum and maximum X/Y coordinates where the button
+   * can be positioned while staying:
+   * - Within viewport bounds
+   * - With proper margins from edges
+   * - Below the flashlight instruction message
+   *
+   * @param buttonWidth - Width of the button in pixels
+   * @param buttonHeight - Height of the button in pixels
+   * @param messageBottom - Y coordinate below which button can be placed
+   * @returns Object containing min/max X and Y boundaries
+   * @private
+   */
   private determineButtonConstraints(
     buttonWidth: number,
     buttonHeight: number,
@@ -212,6 +335,18 @@ export class ShameButton {
     };
   }
 
+  /**
+   * Calculates a random position for the button within the given constraints.
+   *
+   * If there isn't enough space within constraints (e.g., button is larger than
+   * available space), centers the button in that dimension instead.
+   *
+   * @param buttonWidth - Width of the button in pixels
+   * @param buttonHeight - Height of the button in pixels
+   * @param constraints - The boundaries within which to position the button
+   * @returns Tuple of [x, y] coordinates for the button's top-left corner
+   * @private
+   */
   private determineButtonPosition(
     buttonWidth: number,
     buttonHeight: number,
@@ -243,6 +378,16 @@ export class ShameButton {
     return [randomX, randomY];
   }
 
+  /**
+   * Registers event listeners for both static and moving shame buttons.
+   *
+   * Sets up:
+   * - Click handlers for both button variants
+   * - Mouse enter handler for the moving button to detect when user's cursor
+   *   finds it in flashlight mode (provides visual feedback)
+   *
+   * Should be called once during initialization to set up all interactive behavior.
+   */
   registerListeners(): void {
     const shameButton = document.getElementById(SHAME_BUTTON_STATIC);
     if (shameButton) {
