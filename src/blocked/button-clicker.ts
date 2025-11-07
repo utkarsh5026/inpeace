@@ -3,7 +3,7 @@ import { Timer } from './timer';
 import { FlashLight } from './flashlight';
 
 const MAX_CLICKS = 10;
-const TIMER_DURATION = 2000; // 2 seconds
+const TIMER_DURATION = 1500; // 2 seconds
 const TIMER_UPDATE_INTERVAL = 50; // Update every 50ms for smooth animation
 const SHAME_BUTTON_MOVING = 'shameButtonMoving';
 const SHAME_BUTTON_STATIC = 'shameButton';
