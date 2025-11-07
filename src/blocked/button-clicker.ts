@@ -1,12 +1,19 @@
-import { shameMessages } from './messages';
 import { Timer } from './timer';
 import { FlashLight } from './flashlight';
 
 const MAX_CLICKS = 10;
-const TIMER_DURATION = 1500; // 2 seconds
+const TIMER_DURATION = 2000; // 2 seconds
 const TIMER_UPDATE_INTERVAL = 50; // Update every 50ms for smooth animation
 const SHAME_BUTTON_MOVING = 'shameButtonMoving';
 const SHAME_BUTTON_STATIC = 'shameButton';
+const SHAME_MESSAGE = 'SHAME';
+
+type ButtonConstraints = {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+};
 
 export class ShameButton {
   private clickCount: number = 0;
@@ -40,15 +47,11 @@ export class ShameButton {
     this.updateClickCountDisplay();
     this.updateActiveButtonDisplay(activeButton);
 
-    if (this.clickCount >= MAX_CLICKS) {
-      if (this.flashLight.active) this.flashLight.deactivate();
-      this.timer.clear();
+    if (this.clickCount >= MAX_CLICKS) this.userIsShameless(activeButton);
+    else this.restartShaming(buttonMoving);
+  }
 
-      if (activeButton) activeButton.disabled = true;
-      this.onStageComplete();
-      return;
-    }
-
+  private restartShaming(buttonMoving: HTMLButtonElement): void {
     setTimeout(() => {
       this.moveButtonRandomly();
       this.canClick = true;
@@ -58,11 +61,18 @@ export class ShameButton {
     }, 300);
   }
 
-  private updateActiveButtonDisplay(activeButton: HTMLButtonElement) {
-    const currMsg = shameMessages[this.clickCount - 1];
+  private userIsShameless(activeButton: HTMLButtonElement | null): void {
+    if (this.flashLight.active) this.flashLight.deactivate();
+    this.timer.clear();
 
-    if (activeButton && currMsg) {
-      activeButton.textContent = currMsg.text;
+    if (activeButton) activeButton.disabled = true;
+    this.onStageComplete();
+    return;
+  }
+
+  private updateActiveButtonDisplay(activeButton: HTMLButtonElement) {
+    if (activeButton) {
+      activeButton.textContent = SHAME_MESSAGE;
     }
 
     if (activeButton) {
@@ -97,8 +107,7 @@ export class ShameButton {
     ) as HTMLButtonElement;
 
     if (shameButtonMoving && this.clickCount > 0) {
-      const previousMessage = shameMessages[this.clickCount - 1];
-      shameButtonMoving.textContent = previousMessage.text;
+      shameButtonMoving.textContent = SHAME_MESSAGE;
       return;
     }
 
@@ -125,14 +134,7 @@ export class ShameButton {
 
     initialView.classList.add('hidden');
     flashlightMode.classList.remove('hidden');
-
-    // Reset button styling for measurement
-    shameButtonMoving.style.transition = 'none';
-    shameButtonMoving.style.transform = 'none';
-    shameButtonMoving.style.left = '0px';
-    shameButtonMoving.style.top = '0px';
-    shameButtonMoving.style.visibility = 'visible';
-    shameButtonMoving.style.display = 'block';
+    this.resetButtonStyle(shameButtonMoving);
 
     // Force a reflow to ensure the button is rendered
     void shameButtonMoving.offsetHeight;
@@ -142,24 +144,53 @@ export class ShameButton {
     const buttonWidth = buttonRect.width;
     const buttonHeight = buttonRect.height;
 
-    console.log('Button dimensions:', buttonWidth, 'x', buttonHeight);
-
-    // Get viewport dimensions
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    console.log('Viewport dimensions:', viewportWidth, 'x', viewportHeight);
-
     // Get flashlight message dimensions to avoid overlap
     const flashlightMessage = document.getElementById('flashlightMessage');
     let messageBottom = 0;
     if (flashlightMessage) {
       const messageRect = flashlightMessage.getBoundingClientRect();
       messageBottom = messageRect.bottom + 20; // Add 20px buffer below message
-      console.log('Flashlight message bottom:', messageBottom);
     }
 
-    // Minimum margin from edges (16px as requested)
+    const constraints = this.determineButtonConstraints(
+      buttonWidth,
+      buttonHeight,
+      messageBottom
+    );
+
+    const [randomX, randomY] = this.determineButtonPosition(
+      buttonWidth,
+      buttonHeight,
+      constraints
+    );
+
+    shameButtonMoving.style.left = `${randomX}px`;
+    shameButtonMoving.style.top = `${randomY}px`;
+    shameButtonMoving.style.transform = 'none';
+
+    this.buttonFound = false;
+    this.flashLight.activate(() => {
+      this.buttonFound = false;
+    });
+  }
+
+  private resetButtonStyle(button: HTMLButtonElement): void {
+    button.style.transition = 'none';
+    button.style.transform = 'none';
+    button.style.left = '0px';
+    button.style.top = '0px';
+    button.style.visibility = 'visible';
+    button.style.display = 'block';
+  }
+
+  private determineButtonConstraints(
+    buttonWidth: number,
+    buttonHeight: number,
+    messageBottom: number
+  ): ButtonConstraints {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
     const margin = 16;
 
     // Calculate safe bounds for positioning
@@ -169,59 +200,43 @@ export class ShameButton {
     const minY = Math.max(margin, messageBottom); // Don't place button above the message
     const maxY = viewportHeight - buttonHeight - margin;
 
-    console.log('Safe bounds - X:', minX, 'to', maxX, '| Y:', minY, 'to', maxY);
+    return {
+      minX,
+      maxX,
+      minY,
+      maxY,
+    };
+  }
 
-    // Generate random position within safe bounds
+  private determineButtonPosition(
+    buttonWidth: number,
+    buttonHeight: number,
+    constraints: ButtonConstraints
+  ): [number, number] {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const { minX, maxX, minY, maxY } = constraints;
+
+    const determinePos = (
+      min: number,
+      max: number,
+      size: number,
+      viewportSize: number
+    ): number => {
+      if (max <= min) {
+        // Not enough space, center it
+        return (viewportSize - size) / 2;
+      }
+      return min + Math.random() * (max - min);
+    };
+
     let randomX: number;
     let randomY: number;
 
-    if (maxX <= minX) {
-      // Not enough horizontal space, center it
-      randomX = (viewportWidth - buttonWidth) / 2;
-      console.warn('Not enough horizontal space, centering button');
-    } else {
-      randomX = minX + Math.random() * (maxX - minX);
-    }
+    randomX = determinePos(minX, maxX, buttonWidth, viewportWidth);
+    randomY = determinePos(minY, maxY, buttonHeight, viewportHeight);
 
-    if (maxY <= minY) {
-      // Not enough vertical space, center it
-      randomY = (viewportHeight - buttonHeight) / 2;
-      console.warn('Not enough vertical space, centering button');
-    } else {
-      randomY = minY + Math.random() * (maxY - minY);
-    }
-
-    console.log('Placing button at:', randomX, ',', randomY);
-
-    // Verify the button will be within bounds
-    const willOverflowRight = randomX + buttonWidth > viewportWidth - margin;
-    const willOverflowBottom = randomY + buttonHeight > viewportHeight - margin;
-    const willOverflowLeft = randomX < margin;
-    const willOverflowTop = randomY < margin;
-
-    if (
-      willOverflowRight ||
-      willOverflowBottom ||
-      willOverflowLeft ||
-      willOverflowTop
-    ) {
-      console.error('Button will overflow!', {
-        right: willOverflowRight,
-        bottom: willOverflowBottom,
-        left: willOverflowLeft,
-        top: willOverflowTop,
-      });
-    }
-
-    // Apply the final position instantly (no transition)
-    shameButtonMoving.style.left = `${randomX}px`;
-    shameButtonMoving.style.top = `${randomY}px`;
-    shameButtonMoving.style.transform = 'none';
-
-    this.buttonFound = false;
-    this.flashLight.activate(() => {
-      this.buttonFound = false;
-    });
+    return [randomX, randomY];
   }
 
   registerListeners(): void {
