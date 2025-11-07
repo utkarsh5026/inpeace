@@ -1,107 +1,19 @@
 import { allowAccess, handleFinalCheckbox } from './blocked/final-stage';
+import { SiteVistior } from './blocked/visit';
 const urlParams = new URLSearchParams(window.location.search);
 const site = urlParams.get('site');
 
-interface DailySiteVisits {
-  [site: string]: {
-    count: number;
-    date: string;
-  };
-}
-
-interface BlockStats {
-  total: number;
-  lastDate: string;
-  todayCount: number;
-}
-
-let todayVisitCount = 0;
-
-// Update per-site daily visit tracking
-async function updateDailySiteVisits(): Promise<void> {
-  if (!site) return;
-
-  const today = new Date().toISOString().split('T')[0]; // Format: "2025-11-06"
-  const result = await chrome.storage.local.get('dailySiteVisits');
-  let dailySiteVisits: DailySiteVisits = result.dailySiteVisits || {};
-
-  // Check if we have data for this site
-  if (!dailySiteVisits[site] || dailySiteVisits[site].date !== today) {
-    // New day or first visit - reset count
-    dailySiteVisits[site] = {
-      count: 1,
-      date: today,
-    };
-    todayVisitCount = 1;
-  } else {
-    // Same day - increment count
-    dailySiteVisits[site].count++;
-    todayVisitCount = dailySiteVisits[site].count;
-  }
-
-  // Save updated stats
-  await chrome.storage.local.set({ dailySiteVisits });
-
-  // Update the display
-  updateVisitCountDisplay();
-}
-
-// Update the visit count display
-function updateVisitCountDisplay(): void {
-  const visitCountElement = document.getElementById('visitCount');
-  const visitPluralElement = document.getElementById('visitPlural');
-
-  if (visitCountElement && todayVisitCount > 0) {
-    visitCountElement.textContent = todayVisitCount.toString();
-
-    // Update singular/plural form
-    if (visitPluralElement) {
-      visitPluralElement.textContent = todayVisitCount === 1 ? '' : 's';
+function updateSiteUI() {
+  if (site) {
+    const blockedSiteElement = document.getElementById('blockedSite');
+    if (blockedSiteElement) {
+      blockedSiteElement.textContent = site;
     }
-
-    // Show the visit message container
-    const visitMessageElement = document.getElementById('visitMessage');
-    if (visitMessageElement) {
-      visitMessageElement.classList.remove('hidden');
-    }
+    new SiteVistior(site).updateSiteVisits();
   }
 }
 
-// Update the blocked site display
-if (site) {
-  const blockedSiteElement = document.getElementById('blockedSite');
-  if (blockedSiteElement) {
-    blockedSiteElement.textContent = site;
-  }
-}
-
-// Update block statistics (stored for potential future use)
-async function updateStats(): Promise<void> {
-  const today = new Date().toDateString();
-  const result = await chrome.storage.local.get('blockStats');
-  let blockStats: BlockStats = result.blockStats || {
-    total: 0,
-    lastDate: today,
-    todayCount: 0,
-  };
-
-  // Reset today count if it's a new day
-  if (blockStats.lastDate !== today) {
-    blockStats.todayCount = 0;
-    blockStats.lastDate = today;
-  }
-
-  // Increment counts
-  blockStats.total++;
-  blockStats.todayCount++;
-
-  // Save updated stats
-  await chrome.storage.local.set({ blockStats });
-}
-
-// Initialize tracking
-updateDailySiteVisits();
-updateStats();
+updateSiteUI();
 
 // Shame Ritual Logic
 let clickCount = 0;
