@@ -25,25 +25,41 @@ export class ShameButton {
 
   private handleShameClick(): void {
     if (!this.canClick || this.clickCount >= MAX_CLICKS) return;
-    console.log('clicking shame button');
     this.timer.clear();
     this.canClick = false;
     this.clickCount++;
 
-    const clickCountDisplay = document.getElementById('clickCount');
     const button = document.getElementById(
       SHAME_BUTTON_STATIC
     ) as HTMLButtonElement;
     const buttonMoving = document.getElementById(
       SHAME_BUTTON_MOVING
     ) as HTMLButtonElement;
+    const activeButton = this.flashLight.active ? buttonMoving : button;
 
-    if (clickCountDisplay) {
-      clickCountDisplay.textContent = this.clickCount.toString();
+    this.updateClickCountDisplay();
+    this.updateActiveButtonDisplay(activeButton);
+
+    if (this.clickCount >= MAX_CLICKS) {
+      if (this.flashLight.active) this.flashLight.deactivate();
+      this.timer.clear();
+
+      if (activeButton) activeButton.disabled = true;
+      this.onStageComplete();
+      return;
     }
 
+    setTimeout(() => {
+      this.moveButtonRandomly();
+      this.canClick = true;
+      if (buttonMoving) buttonMoving.disabled = false;
+
+      this.timer.start(this.handleTimerExpiry.bind(this));
+    }, 300);
+  }
+
+  private updateActiveButtonDisplay(activeButton: HTMLButtonElement) {
     const currMsg = shameMessages[this.clickCount - 1];
-    const activeButton = this.flashLight.active ? buttonMoving : button;
 
     if (activeButton && currMsg) {
       activeButton.textContent = currMsg.text;
@@ -51,24 +67,6 @@ export class ShameButton {
 
     if (activeButton) {
       activeButton.disabled = true;
-    }
-
-    if (this.clickCount >= MAX_CLICKS) {
-      if (this.flashLight.active) {
-        this.flashLight.deactivate();
-      }
-
-      this.timer.clear();
-      if (activeButton) activeButton.disabled = true;
-      this.onStageComplete();
-    } else {
-      setTimeout(() => {
-        this.moveButtonRandomly();
-        this.canClick = true;
-        if (buttonMoving) buttonMoving.disabled = false;
-
-        this.timer.start(this.handleTimerExpiry.bind(this));
-      }, 300); // Brief delay before next round
     }
   }
 
@@ -79,23 +77,34 @@ export class ShameButton {
     }
 
     this.clickCount--;
+    this.updateClickCountDisplay();
+
+    this.addMessageToButton();
+    this.moveButtonRandomly();
+    this.timer.start(this.handleTimerExpiry.bind(this));
+  }
+
+  private updateClickCountDisplay(): void {
     const clickCountDisplay = document.getElementById('clickCount');
     if (clickCountDisplay) {
       clickCountDisplay.textContent = this.clickCount.toString();
     }
+  }
 
+  private addMessageToButton(): void {
     const shameButtonMoving = document.getElementById(
-      'shameButtonMoving'
+      SHAME_BUTTON_MOVING
     ) as HTMLButtonElement;
+
     if (shameButtonMoving && this.clickCount > 0) {
       const previousMessage = shameMessages[this.clickCount - 1];
       shameButtonMoving.textContent = previousMessage.text;
-    } else if (shameButtonMoving && this.clickCount === 0) {
-      shameButtonMoving.textContent = 'I Have No Self-Control';
+      return;
     }
 
-    this.moveButtonRandomly();
-    this.timer.start(this.handleTimerExpiry.bind(this));
+    if (shameButtonMoving && this.clickCount === 0) {
+      shameButtonMoving.textContent = 'I Have No Self-Control';
+    }
   }
 
   private moveButtonRandomly(): void {
