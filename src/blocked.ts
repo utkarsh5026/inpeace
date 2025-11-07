@@ -1,4 +1,4 @@
-// Get the blocked site from URL
+import { allowAccess, handleFinalCheckbox } from './blocked/final-stage';
 const urlParams = new URLSearchParams(window.location.search);
 const site = urlParams.get('site');
 
@@ -133,7 +133,11 @@ const shameMessages = [
   { text: 'Is This Really Worth It?', emoji: '🤦', scale: 1.6 },
   { text: 'You Have No Willpower', emoji: '😤', scale: 1.7 },
   { text: "One More Click... That's All It Takes", emoji: '😔', scale: 1.8 },
-  { text: 'Congratulations. You Have Zero Self-Control.', emoji: '💔', scale: 2.0 },
+  {
+    text: 'Congratulations. You Have Zero Self-Control.',
+    emoji: '💔',
+    scale: 2.0,
+  },
 ];
 
 // Timer Functions
@@ -214,7 +218,9 @@ function handleTimerExpiry(): void {
     }
 
     // Update button text to previous message
-    const shameButtonMoving = document.getElementById('shameButtonMoving') as HTMLButtonElement;
+    const shameButtonMoving = document.getElementById(
+      'shameButtonMoving'
+    ) as HTMLButtonElement;
     if (shameButtonMoving && clickCount > 0) {
       const previousMessage = shameMessages[clickCount - 1];
       shameButtonMoving.textContent = previousMessage.text;
@@ -359,12 +365,15 @@ function deactivateFlashlight(): void {
 }
 
 function moveButtonRandomly(): void {
-  const shameButtonMoving = document.getElementById('shameButtonMoving') as HTMLButtonElement;
+  const shameButtonMoving = document.getElementById(
+    'shameButtonMoving'
+  ) as HTMLButtonElement;
   const buttonContainer = document.getElementById('buttonContainer');
   const initialView = document.getElementById('initialView');
   const flashlightMode = document.getElementById('flashlightMode');
 
-  if (!shameButtonMoving || !buttonContainer || !initialView || !flashlightMode) return;
+  if (!shameButtonMoving || !buttonContainer || !initialView || !flashlightMode)
+    return;
 
   // First, show flashlight mode so the button becomes visible for measurement
   initialView.classList.add('hidden');
@@ -443,12 +452,17 @@ function moveButtonRandomly(): void {
   const willOverflowLeft = randomX < margin;
   const willOverflowTop = randomY < margin;
 
-  if (willOverflowRight || willOverflowBottom || willOverflowLeft || willOverflowTop) {
+  if (
+    willOverflowRight ||
+    willOverflowBottom ||
+    willOverflowLeft ||
+    willOverflowTop
+  ) {
     console.error('Button will overflow!', {
       right: willOverflowRight,
       bottom: willOverflowBottom,
       left: willOverflowLeft,
-      top: willOverflowTop
+      top: willOverflowTop,
     });
   }
 
@@ -474,8 +488,12 @@ function handleShameClick(): void {
   clickCount++;
 
   const clickCountDisplay = document.getElementById('clickCount');
-  const shameButton = document.getElementById('shameButton') as HTMLButtonElement;
-  const shameButtonMoving = document.getElementById('shameButtonMoving') as HTMLButtonElement;
+  const shameButton = document.getElementById(
+    'shameButton'
+  ) as HTMLButtonElement;
+  const shameButtonMoving = document.getElementById(
+    'shameButtonMoving'
+  ) as HTMLButtonElement;
 
   // Update click count display
   if (clickCountDisplay) {
@@ -525,81 +543,6 @@ function handleShameClick(): void {
       startClickTimer();
     }, 300); // Brief delay before next round
   }
-}
-
-function handleFinalCheckbox(): void {
-  const checkbox = document.getElementById('finalCheckbox') as HTMLInputElement;
-  const proceedBtn = document.getElementById(
-    'proceedFinalBtn'
-  ) as HTMLButtonElement;
-
-  if (!checkbox || !proceedBtn) return;
-
-  if (checkbox.checked) {
-    proceedBtn.disabled = false;
-    proceedBtn.classList.remove('bg-gray-600');
-    proceedBtn.classList.add(
-      'bg-red-600',
-      'hover:bg-red-700',
-      'cursor-pointer'
-    );
-  } else {
-    proceedBtn.disabled = true;
-    proceedBtn.classList.add('bg-gray-600');
-    proceedBtn.classList.remove(
-      'bg-red-600',
-      'hover:bg-red-700',
-      'cursor-pointer'
-    );
-  }
-}
-
-async function allowAccess(): Promise<void> {
-  // Show dramatic countdown before allowing access
-  const countdownOverlay = document.getElementById('countdownOverlay');
-  const countdownNumber = document.getElementById('countdownNumber');
-  const proceedFinalBtn = document.getElementById(
-    'proceedFinalBtn'
-  ) as HTMLButtonElement;
-
-  if (!countdownOverlay || !countdownNumber) return;
-
-  // Disable button
-  if (proceedFinalBtn) {
-    proceedFinalBtn.disabled = true;
-  }
-
-  // Add site to temporary whitelist (30 minutes = 1800000ms)
-  if (site) {
-    const expirationTime = Date.now() + 30 * 60 * 1000; // 30 minutes from now
-    const result = await chrome.storage.local.get('tempWhitelist');
-    const tempWhitelist: { [site: string]: number } = result.tempWhitelist || {};
-    tempWhitelist[site] = expirationTime;
-    await chrome.storage.local.set({ tempWhitelist });
-  }
-
-  // Show overlay
-  countdownOverlay.classList.remove('hidden');
-
-  let count = 3;
-  const showCount = () => {
-    if (count > 0) {
-      countdownNumber.textContent = count.toString();
-      countdownNumber.classList.remove('countdown-number');
-      // Force reflow to restart animation
-      countdownNumber.offsetWidth;
-      countdownNumber.classList.add('countdown-number');
-      count--;
-      setTimeout(showCount, 1000);
-    } else {
-      // Redirect to the site
-      if (site) {
-        window.location.href = 'https://' + site;
-      }
-    }
-  };
-
-  showCount();
 }
 
 // Set up event listeners when DOM is loaded
@@ -654,6 +597,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Final proceed button
   const proceedFinalBtn = document.getElementById('proceedFinalBtn');
   if (proceedFinalBtn) {
-    proceedFinalBtn.addEventListener('click', allowAccess);
+    proceedFinalBtn.addEventListener('click', () => allowAccess(site));
   }
 });
