@@ -143,14 +143,7 @@ export class ShameButton {
     const buttonRect = shameButtonMoving.getBoundingClientRect();
     const buttonWidth = buttonRect.width;
     const buttonHeight = buttonRect.height;
-
-    // Get flashlight message dimensions to avoid overlap
-    const flashlightMessage = document.getElementById('flashlightMessage');
-    let messageBottom = 0;
-    if (flashlightMessage) {
-      const messageRect = flashlightMessage.getBoundingClientRect();
-      messageBottom = messageRect.bottom + 20; // Add 20px buffer below message
-    }
+    const messageBottom = this.getFlashLightMessageBottom();
 
     const constraints = this.determineButtonConstraints(
       buttonWidth,
@@ -172,6 +165,17 @@ export class ShameButton {
     this.flashLight.activate(() => {
       this.buttonFound = false;
     });
+  }
+
+  private getFlashLightMessageBottom(): number {
+    const flashlightMessage = document.getElementById('flashlightMessage');
+    let messageBottom = 0;
+    if (flashlightMessage) {
+      const messageRect = flashlightMessage.getBoundingClientRect();
+      messageBottom = messageRect.bottom + 20; // Add 20px buffer below message
+    }
+
+    return messageBottom;
   }
 
   private resetButtonStyle(button: HTMLButtonElement): void {
