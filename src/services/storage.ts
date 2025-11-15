@@ -1,6 +1,10 @@
 /// <reference types="chrome" />
 import { StorageData, TempWhitelist } from '../types';
-import { BLOCKED_SITES_KEY, TEMP_WHITELIST_KEY, IS_ENABLED_KEY } from '../constants';
+import {
+  BLOCKED_SITES_KEY,
+  TEMP_WHITELIST_KEY,
+  IS_ENABLED_KEY,
+} from '../constants';
 
 /**
  * Retrieves blocked sites and enabled status from sync storage
@@ -31,7 +35,9 @@ export async function getTempWhitelist(): Promise<TempWhitelist> {
 /**
  * Saves temporary whitelist to local storage
  */
-export async function saveTempWhitelist(whitelist: TempWhitelist): Promise<void> {
+export async function saveTempWhitelist(
+  whitelist: TempWhitelist
+): Promise<void> {
   await chrome.storage.local.set({ [TEMP_WHITELIST_KEY]: whitelist });
 }
 

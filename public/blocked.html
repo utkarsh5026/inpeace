@@ -37,7 +37,11 @@
           >
             <span id="blockedSite" class="text-slate-300">Site Blocked</span>
             <span id="visitMessage" class="hidden">
-              · <span id="visitCount" class="text-red-400">0</span> visit<span id="visitPlural">s</span> today
+              · <span id="visitCount" class="text-red-400">0</span> visit<span
+                id="visitPlural"
+                >s</span
+              >
+              today
             </span>
           </div>
 
@@ -103,7 +107,10 @@
           <!-- Flashlight Mode (fullscreen search area) -->
           <div id="flashlightMode" class="hidden">
             <!-- Message at top -->
-            <div id="flashlightMessage" class="fixed top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center z-101">
+            <div
+              id="flashlightMessage"
+              class="fixed top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center z-101"
+            >
               <div class="text-6xl mb-6 filter drop-shadow-2xl">🔦</div>
               <h2
                 class="text-4xl font-black mb-4 font-display tracking-tight text-white"
@@ -112,17 +119,24 @@
               </h2>
               <p class="text-xl font-bold text-gray-300">
                 Move your cursor to search... Click it
-                <span class="text-red-400 text-3xl font-black mx-2"><span id="clickCount">0</span> / 10</span> times
+                <span class="text-red-400 text-3xl font-black mx-2"
+                  ><span id="clickCount">0</span> / 10</span
+                >
+                times
               </p>
 
               <!-- Timer Progress Bar -->
               <div id="timerContainer" class="mt-6 hidden">
-                <p class="text-sm font-bold text-gray-400 mb-2">Time remaining:</p>
+                <p class="text-sm font-bold text-gray-400 mb-2">
+                  Time remaining:
+                </p>
                 <div class="timer-bar-container">
                   <div id="timerBar" class="timer-bar"></div>
                 </div>
                 <p class="text-xs font-bold text-gray-500 mt-2">
-                  Click within <span id="timerSeconds" class="text-white">2.0</span>s or lose progress!
+                  Click within
+                  <span id="timerSeconds" class="text-white">2.0</span>s or lose
+                  progress!
                 </p>
               </div>
             </div>
@@ -132,7 +146,12 @@
               <button
                 id="shameButtonMoving"
                 class="absolute px-10 py-5 bg-red-600 text-white text-xl font-black rounded-xl shadow-2xl shadow-red-600/50 hover:bg-red-700 hover:shadow-red-600/70 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 border-2 border-red-800 uppercase tracking-wide"
-                style="left: 50%; top: 50%; transform: translate(-50%, -50%); transition: all 0.3s ease;"
+                style="
+                  left: 50%;
+                  top: 50%;
+                  transform: translate(-50%, -50%);
+                  transition: all 0.3s ease;
+                "
               >
                 I Have No Self-Control
               </button>

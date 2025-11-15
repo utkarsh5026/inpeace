@@ -363,7 +363,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><text y="32" font-size="32">🔦</text></svg>') 20 20, auto;
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><text y="32" font-size="32">🔦</text></svg>')
+      20 20,
+    auto;
 }
 
 /* Hide initial view during flashlight mode */
@@ -412,7 +415,9 @@
   width: 100%;
   background: linear-gradient(90deg, #10b981, #34d399);
   border-radius: 8px;
-  transition: width 0.1s linear, background 0.3s ease;
+  transition:
+    width 0.1s linear,
+    background 0.3s ease;
   box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
 }
 
@@ -429,7 +434,8 @@
 }
 
 @keyframes timerPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scaleY(1);
   }

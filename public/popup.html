@@ -1,71 +1,66 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InPeace</title>
-  <link rel="stylesheet" href="popup.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-  <div>
-    <!-- Header -->
-    <header>
-      <div class="flex items-center justify-center gap-2 mb-1">
-        <img src="icons/icon48.png" alt="InPeace">
-        <h1>InPeace</h1>
-      </div>
-      <p>Stay focused, stay peaceful</p>
-    </header>
-
-    <!-- Toggle Section -->
-    <div class="toggle-section">
-      <label class="toggle">
-        <input type="checkbox" id="enableToggle">
-        <span class="toggle-slider"></span>
-      </label>
-      <span id="statusText">Extension Enabled</span>
-    </div>
-
-    <!-- Current Site Section -->
-    <div class="current-site-section">
-      <div class="site-card">
-        <div class="site-info">
-          <div class="site-label">Current Site</div>
-          <div id="currentSite" class="truncate">Loading...</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InPeace</title>
+    <link rel="stylesheet" href="popup.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div>
+      <!-- Header -->
+      <header>
+        <div class="flex items-center justify-center gap-2 mb-1">
+          <img src="icons/icon48.png" alt="InPeace" />
+          <h1>InPeace</h1>
         </div>
-      </div>
-      <button id="addCurrentBtn">
-        Add Current Site to Block List
-      </button>
-    </div>
+        <p>Stay focused, stay peaceful</p>
+      </header>
 
-    <!-- List Section -->
-    <div class="list-section">
-      <!-- Whitelisted Sites Section -->
-      <div id="whitelistSection" class="hidden">
-        <h3>
-          Temporarily Whitelisted <span id="whitelistCount">0</span>
-        </h3>
-        <ul id="whitelistList" class="space-y-2"></ul>
+      <!-- Toggle Section -->
+      <div class="toggle-section">
+        <label class="toggle">
+          <input type="checkbox" id="enableToggle" />
+          <span class="toggle-slider"></span>
+        </label>
+        <span id="statusText">Extension Enabled</span>
       </div>
 
-      <!-- Blocked Sites Section -->
-      <h3>
-        Blocked Websites <span id="count">0</span>
-      </h3>
-      <ul id="websiteList" class="space-y-2"></ul>
-    </div>
+      <!-- Current Site Section -->
+      <div class="current-site-section">
+        <div class="site-card">
+          <div class="site-info">
+            <div class="site-label">Current Site</div>
+            <div id="currentSite" class="truncate">Loading...</div>
+          </div>
+        </div>
+        <button id="addCurrentBtn">Add Current Site to Block List</button>
+      </div>
 
-    <!-- Footer -->
-    <footer>
-      <button id="resetBtn">
-        Reset to Default
-      </button>
-    </footer>
-  </div>
-  <script src="popup.js"></script>
-</body>
+      <!-- List Section -->
+      <div class="list-section">
+        <!-- Whitelisted Sites Section -->
+        <div id="whitelistSection" class="hidden">
+          <h3>Temporarily Whitelisted <span id="whitelistCount">0</span></h3>
+          <ul id="whitelistList" class="space-y-2"></ul>
+        </div>
+
+        <!-- Blocked Sites Section -->
+        <h3>Blocked Websites <span id="count">0</span></h3>
+        <ul id="websiteList" class="space-y-2"></ul>
+      </div>
+
+      <!-- Footer -->
+      <footer>
+        <button id="resetBtn">Reset to Default</button>
+      </footer>
+    </div>
+    <script src="popup.js"></script>
+  </body>
 </html>
