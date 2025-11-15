@@ -1,0 +1,44 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 10
+    groups:
+      # Group dev dependencies together
+      dev-dependencies:
+        patterns:
+          - '@types/*'
+          - '@testing-library/*'
+          - '@vitest/*'
+          - 'vitest'
+          - 'prettier'
+          - 'eslint*'
+        update-types:
+          - 'minor'
+          - 'patch'
+      # Group production dependencies
+      production-dependencies:
+        patterns:
+          - '*'
+        exclude-patterns:
+          - '@types/*'
+          - '@testing-library/*'
+          - '@vitest/*'
+          - 'vitest'
+          - 'prettier'
+          - 'eslint*'
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
